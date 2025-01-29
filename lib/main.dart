@@ -57,7 +57,7 @@ class logincuy extends State<MyApp> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                      "AL-MADINAH\nStaff Login", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: thiscolor.AppColor.judulLogincuy),
+                    "AL-MADINAH\nStaff Login", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: thiscolor.AppColor.judulLogincuy),
                   ),
                   SizedBox(
                     height: 30,
@@ -167,19 +167,15 @@ class logincuy extends State<MyApp> {
     };
 
     var res = await Network().auth(data, '/login');
-    var body = json.decode(res.body);
-    if(body['success']){
+
+    if (res['success']) {
       SharedPreferences localStorage = await SharedPreferences.getInstance();
-      localStorage.setString('token', json.encode(body['token']));
-      localStorage.setString('user', json.encode(body['user']));
-      Navigator.pushReplacement(
-        context,
-        new MaterialPageRoute(
-            builder: (context) => Screenview()
-        ),
-      );
-    }else{
-      showMsg(body['message']);
+      localStorage.setString('token', json.encode(res['token']));
+      localStorage.setString('user', json.encode(res['user']));
+
+      Get.to(() => Screenview());
+    } else {
+      showMsg(res['message']);
     }
 
     setState(() {
