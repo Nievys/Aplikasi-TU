@@ -6,33 +6,27 @@ import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:aplikasikkp/ScreenView.dart';
 import 'package:aplikasikkp/Utils/ColorNest.dart' as thiscolor;
 
-class Pembayaran extends StatefulWidget {
-  const Pembayaran({Key? key}) : super(key: key);
+class Tagihan extends StatefulWidget {
+  const Tagihan({Key? key}) : super(key: key);
 
   @override
-  State<Pembayaran> createState() => isiPembayaran();
+  State<Tagihan> createState() => isiPembayaran();
 }
 
-class isiPembayaran extends State<Pembayaran> {
+class isiPembayaran extends State<Tagihan> {
   int currentPage = 2;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: thiscolor.AppColor.backgroundcolor,
-      body: Container(
-        child:
-        Positioned(
-          bottom: 30,
-          left: 20,
-          right: 20,
-          child: Container(
+      body: Center(
+        child: Container(
             width: double.infinity,
             child: Center(
-              child: Text("Pembayaran"),
+              child: Text("Tagihan"),
             ),
           ),
-        ),
       ),
     );
   }

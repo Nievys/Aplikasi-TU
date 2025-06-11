@@ -11,7 +11,7 @@ import 'package:aplikasikkp/ScreenView.dart';
 import 'package:aplikasikkp/Utils/ColorNest.dart' as thiscolor;
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../Methods/api.dart';
+import '../Methods/transaksiServices.dart';
 import '../main.dart';
 
 class Profilepage extends StatefulWidget {
@@ -94,22 +94,6 @@ class isiProfilepage extends State<Profilepage> {
   void logout() async {
     bool confirmLogout = await showLogoutDialog();
     if (!confirmLogout) return;
-
-    try {
-      var body = await Network().getData('/logout');
-
-      if (body['success']) {
-        SharedPreferences localStorage = await SharedPreferences.getInstance();
-        await localStorage.remove('token');
-        await localStorage.remove('user');
-
-        Get.offAll(() => main());
-      } else {
-        showMsg("Logout failed, please try again.");
-      }
-    } catch (e) {
-      showMsg("Error logging out: $e");
-    }
   }
 
   Future<bool> showLogoutDialog() async {

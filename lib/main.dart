@@ -1,12 +1,20 @@
 import 'dart:convert';
 
 import 'package:aplikasikkp/ScreenView.dart';
+import 'package:aplikasikkp/loginPage.dart';
+import 'package:aplikasikkp/providers/bloc/bottom_nav_cubit.dart';
+import 'package:aplikasikkp/providers/bloc/transaksiCubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'Methods/api.dart';
+import 'Methods/transaksiServices.dart';
 import 'Utils/ColorNest.dart' as thiscolor;
-import 'Utils/loginValidator.dart';
+import 'Methods/loginValidator.dart';
+import 'Utils/localDB.dart';
+import 'auth/authBloc/auth_cubit.dart';
+import 'package:aplikasikkp/auth/authServices.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,172 +22,53 @@ void main() {
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
-  logincuy createState() => logincuy();
+  State<MyApp> createState() => _MyAppState();
 }
 
-class logincuy extends State<MyApp> {
-  final formKey = GlobalKey<FormState>();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  bool loading = true;
-
-  var email, password;
-  bool securetext =  true;
-
-  @override
-  void initState() {
-    super.initState();
-    emailController.text = '';
-    passwordController.text = '';
-    checkLogin();
-  }
-
-  void checkLogin() async {
-    SharedPreferences localStorage = await SharedPreferences.getInstance();
-    var token = localStorage.getString('token');
-    if (token != null) {
-      Get.to(() => const Screenview());
-    } else {
-      loading = false;
-    }
-  }
+class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      home: Scaffold(
-        backgroundColor: thiscolor.AppColor.backgroundcolor,
-        body: Stack(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 100.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "AL-MADINAH\nStaff Login", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: thiscolor.AppColor.judulLogincuy),
-                  ),
-                  SizedBox(
-                    height: 30,
-                  ),
-                  Form(
-                    key: formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        TextFormField(
-                          validator: LoginValidators.validateEmail,
-                          decoration: const InputDecoration(
-                            prefixIcon: Padding(
-                              padding: EdgeInsets.only(left: 10),
-                              child: Icon(Icons.person_outline_outlined),
-                            ),
-                            labelText: 'Email',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(50)),
-                            ),
-                            contentPadding: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-                          ),
-                          controller: emailController,
-                        ),
-                        SizedBox(
-                          height: 15,
-                        ),
-                        TextFormField(
-                          obscureText: securetext,
-                          validator:  LoginValidators.validatePassword,
-                          decoration: InputDecoration(
-                            prefixIcon: Padding(
-                              padding: EdgeInsets.only(left: 10),
-                              child: Icon(Icons.lock_outline),
-                            ),
-                            labelText: 'Password',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(50)),
-                            ),
-                            suffixIcon: IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  securetext = !securetext;
-                                });
-                              },
-                              padding: EdgeInsets.only(right: 10),
-                              icon: Icon(securetext ? Icons.visibility_off : Icons.visibility),
-                            ),
-                            contentPadding: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-                          ),
-                          controller: passwordController,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Positioned(
-              bottom: 30,
-              left: 20,
-              right: 20,
-              child: Container(
-                width: double.infinity,
-                child: TextButton(
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(thiscolor.AppColor.ijoButton),
-                    foregroundColor: MaterialStateProperty.all(thiscolor.AppColor.buttonColor),
-                    shape: MaterialStateProperty.all(
-                      RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
-                    elevation: MaterialStateProperty.all(10),
-                  ),
-                  onPressed: () {
-                    if (formKey.currentState!.validate()) {
-                      login();
-                    } else {
-                      print('Form tidak valid');
-                    }
-                  },
-                  child: Text("login".toUpperCase()),
-                ),
-              ),
-            ),
-          ],
-        ),
+    final authService = authServices();
+    final storageService = StorageService();
+    final transactionStorageService = TransactionStorageService(localDB());
+    final transaksiServcies = transaksiServices();
+
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => bottomnavcubit()),
+        BlocProvider(create: (_) => AuthCubit(authService, storageService)..checkLoginStatus()),
+        BlocProvider(create: (_) => transaksiCubit(transaksiServcies, transactionStorageService)),
+      ],
+      child: GetMaterialApp(
+        home: const AuthHandler(),
       ),
     );
   }
-  void showMsg(String msg) {
-    final snackBar = SnackBar(
-      content: Text(msg),
+}
+
+class AuthHandler extends StatelessWidget {
+  const AuthHandler({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<AuthCubit, AuthState>(
+      builder: (context, state) {
+        if (state is AuthInitial) {
+          return CircularProgressIndicator();
+        } else if (state is AuthAuthenticated) {
+          return const Screenview();
+        } else if (state is AuthUnauthenticated) {
+          return const loginPage();
+        } else if (state is AuthFailure) {
+          return const loginPage();
+        } else if (state is AuthLoading) {
+          return CircularProgressIndicator();
+        } else {
+          return const Scaffold(
+            body: Center(child: Text('Unknown state')),
+          );
+        }
+      },
     );
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-  }
-
-  void login() async{
-    setState(() {
-      loading = true;
-    });
-    email = emailController.text;
-    password = passwordController.text;
-
-    var data = {
-      'email' : email,
-      'password' : password
-    };
-
-    var res = await Network().auth(data, '/login');
-
-    if (res['success']) {
-      SharedPreferences localStorage = await SharedPreferences.getInstance();
-      localStorage.setString('token', json.encode(res['token']));
-      localStorage.setString('user', json.encode(res['user']));
-
-      Get.to(() => Screenview());
-    } else {
-      showMsg(res['message']);
-    }
-
-    setState(() {
-      loading = false;
-    });
   }
 }

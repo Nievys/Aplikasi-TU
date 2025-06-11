@@ -6,33 +6,27 @@ import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:aplikasikkp/ScreenView.dart';
 import 'package:aplikasikkp/Utils/ColorNest.dart' as thiscolor;
 
-class Tenggat extends StatefulWidget {
-  const Tenggat({Key? key}) : super(key: key);
+class Riwayat extends StatefulWidget {
+  const Riwayat({Key? key}) : super(key: key);
 
   @override
-  State<Tenggat> createState() => isiTenggat();
+  State<Riwayat> createState() => isiTenggat();
 }
 
-class isiTenggat extends State<Tenggat> {
+class isiTenggat extends State<Riwayat> {
   int currentPage = 3;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: thiscolor.AppColor.backgroundcolor,
-      body: Container(
-        child:
-        Positioned(
-          bottom: 30,
-          left: 20,
-          right: 20,
-          child: Container(
+      body: Center(
+        child: Container(
             width: double.infinity,
             child: Center(
-              child: Text("Tenggat"),
+              child: Text("Riwayat"),
             ),
           ),
-        ),
       ),
     );
   }

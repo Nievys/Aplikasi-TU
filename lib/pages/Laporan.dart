@@ -20,19 +20,13 @@ class isiLaporan extends State<Laporan> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: thiscolor.AppColor.backgroundcolor,
-      body: Container(
-        child:
-        Positioned(
-          bottom: 30,
-          left: 20,
-          right: 20,
-          child: Container(
+      body: Center(
+        child: Container(
             width: double.infinity,
             child: Center(
-              child: Text("Laporan"),
+              child: Text("Akun"),
             ),
           ),
-        ),
       ),
     );
   }
