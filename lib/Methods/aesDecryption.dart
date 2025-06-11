@@ -449,10 +449,12 @@ class AESDecryption {
           // Akses matrix[j][i] karena AES biasanya memproses kolom-major,
           // sedangkan representasi string mungkin baris-major.
           // Ini sudah benar dari kode asli Anda.
+          log('DEBUG (AESDecryption): Decrypted Byte: ${matrix[j][i]} (Hex: ${matrix[j][i].toRadixString(16)})');
           result += String.fromCharCode(matrix[j][i]);
         }
       }
       // Trim dan hapus null bytes (padding)
+      log('DEBUG (AESDecryption): Raw String Before Trim: "$result"');
       resultArray.add(result.trim().replaceAll(RegExp(r'\x00'), ''));
     }
 
