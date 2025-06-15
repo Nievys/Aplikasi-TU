@@ -4,7 +4,7 @@ import 'package:aplikasikkp/model/transaksiResponse.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../Utils/localDB.dart';
+import 'localDB.dart';
 
 class TransactionStorageService {
   final localDB inilocalDB;
@@ -23,6 +23,7 @@ class TransactionStorageService {
 
 class transaksiServices {
   static final String baseUrl = 'http://192.168.0.100:12000/api';
+  //static final String baseUrl = 'http://10.74.80.224:12000/api';
   var token;
 
   Future<transaksiResponse> getAllTransaction(data) async {

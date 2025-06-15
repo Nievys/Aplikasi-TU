@@ -11,8 +11,8 @@ import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:aplikasikkp/ScreenView.dart';
 import 'package:aplikasikkp/pages/ProfilePage.dart';
 import 'package:aplikasikkp/Utils/ColorNest.dart' as thiscolor;
-import 'Methods/transaksiServices.dart';
-import 'Methods/loginValidator.dart';
+import 'Utils/transaksiServices.dart';
+import 'Utils/loginValidator.dart';
 import 'Utils/deviceInfo.dart';
 import 'auth/authBloc/auth_cubit.dart';
 

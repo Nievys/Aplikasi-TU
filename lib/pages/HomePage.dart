@@ -1,6 +1,8 @@
 import 'dart:ffi';
+import 'package:aplikasikkp/Utils/localDB.dart';
 import 'package:aplikasikkp/auth/authServices.dart';
 import 'package:aplikasikkp/model/userLogin.dart';
+import 'package:aplikasikkp/widget/FutureMoney.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,10 +15,13 @@ import 'package:aplikasikkp/ScreenView.dart';
 import 'package:aplikasikkp/pages/ProfilePage.dart';
 import 'package:aplikasikkp/Utils/ColorNest.dart' as thiscolor;
 
+import '../Utils/RpFormatter.dart';
+import '../model/transaksi.dart';
 import '../providers/bloc/transaksiCubit.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  final PageController pageController;
+  const HomePage({super.key, required this.pageController});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -135,63 +140,108 @@ class _HomePageState extends State<HomePage> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Container(
-                              width: MediaQuery.of(context).size.width * 0.48,
-                              height: MediaQuery.of(context).size.height * 0.18,
-                              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 25),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                color: thiscolor.AppColor.ijoButton,
-                                boxShadow:[BoxShadow(
-                                  color: Colors.black12,
-                                  blurRadius: 10,
-                                  offset: Offset(0, 12),
-                                )],
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "SPP lunas",
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w400,
-                                      color: thiscolor.AppColor.backgroundcolor,
-                                    )
-                                  ),
-                                  Text(
-                                    "Rp.123.123.123,00",
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                      color: thiscolor.AppColor.backgroundcolor,
-                                    ),
-                                  ),
-
-                                  SizedBox(height: MediaQuery.of(context).size.height * 0.03),
-
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            GestureDetector(
+                              onTap: () {
+                                widget.pageController.jumpToPage(2);
+                              },
+                              child: Container(
+                                width: MediaQuery.of(context).size.width * 0.48,
+                                height: MediaQuery.of(context).size.height * 0.18,
+                                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 25),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: thiscolor.AppColor.ijoButton,
+                                  boxShadow:[BoxShadow(
+                                    color: Colors.black12,
+                                    blurRadius: 10,
+                                    offset: Offset(0, 12),
+                                  )],
+                                ),
+                                child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        "Lihat riwayat pembayaran",
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w400,
-                                          color: thiscolor.AppColor.backgroundcolor
+                                          "SPP lunas",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w400,
+                                            color: thiscolor.AppColor.backgroundcolor,
+                                          )
+                                      ),
+                                      BlocBuilder<transaksiCubit, transaksiState>(
+                                          builder: (context, state) {
+                                            if (state is transaksiLoading) {
+                                              return CircularProgressIndicator();
+                                            } else if (state is transaksiFailure) {
+                                              return Text(
+                                                "error state",
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w400,
+                                                  color: thiscolor.AppColor.backgroundcolor,
+                                                ),
+                                              );
+                                            } else if (state is transaksiSuccess) {
+                                              return FutureBuilder<List<transaksi>>(future: localDB.panggilini.getSpecificTransaction("1"), builder: (context, snapshot) {
+                                                if (snapshot.connectionState == ConnectionState.waiting) {
+                                                  return CircularProgressIndicator();
+                                                } if (snapshot.hasError) {
+                                                  return Text(
+                                                    snapshot.error.toString(),
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: 14,
+                                                      fontWeight: FontWeight.w400,
+                                                      color: thiscolor.AppColor.backgroundcolor,
+                                                    ),
+                                                  );
+                                                } else {
+                                                  List<transaksi> data = snapshot.data!;
+                                                  double totalLunas = 0.0;
+                                                  for (var jumlahLunas in snapshot.data!) {
+                                                    totalLunas += (double.parse(jumlahLunas.spp) - double.parse(jumlahLunas.potongan));
+                                                  }
+                                                  return futuremoney(amount: CurrencyFormat.convertToIdr(totalLunas, 2).toString());
+                                                }
+                                              }
+                                              );
+                                            }
+                                            return Text(
+                                              "error future builder",
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                                color: thiscolor.AppColor.backgroundcolor,
+                                              ),
+                                            );
+                                          }
+                                      ),
+                                      SizedBox(height: MediaQuery.of(context).size.height * 0.025),
+
+                                      Expanded(
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              "Lihat riwayat pembayaran",
+                                              style: GoogleFonts.poppins(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w400,
+                                                  color: thiscolor.AppColor.backgroundcolor
+                                              ),
+                                            ),
+                                            Text(
+                                              ">",
+                                              style: GoogleFonts.poppins(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w400,
+                                                  color: thiscolor.AppColor.backgroundcolor
+                                              ),
+                                            )
+                                          ],
                                         ),
                                       ),
-                                      Text(
-                                        ">",
-                                        style: GoogleFonts.poppins(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w400,
-                                            color: thiscolor.AppColor.backgroundcolor
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                ]
+                                    ]
+                                ),
                               ),
                             ),
                             Column(

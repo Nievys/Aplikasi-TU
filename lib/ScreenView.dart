@@ -133,7 +133,7 @@ class isiScreenview extends State<Screenview> with SingleTickerProviderStateMixi
       controller: pageController,
       onPageChanged: onPageChange,
         children: <Widget>[
-          HomePage(),
+          HomePage(pageController: pageController),
           Tagihan(),
           Riwayat(),
         ],

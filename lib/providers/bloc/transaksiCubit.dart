@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:aplikasikkp/Methods/aesDecryption.dart';
-import 'package:aplikasikkp/Methods/transaksiServices.dart';
+import 'package:aplikasikkp/Utils/aesDecryption.dart';
+import 'package:aplikasikkp/Utils/transaksiServices.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -21,35 +21,25 @@ class transaksiCubit extends Cubit<transaksiState> {
 
   transaksiCubit(this.callthisapi, this.transactionStorageService) : super(transaksiInitial());
 
-  void AllTransaction(logindata) async {
+  void AllTransaction(token) async {
     emit(transaksiLoading());
     try {
       SharedPreferences localStorage = await SharedPreferences.getInstance();
       var aesKey = localStorage.getString('decryption_key');
       List<int> keyBytes = base64.decode(aesKey!);
       String decodedKey = utf8.decode(keyBytes);
-      log('DEBUG: Decoded Key: $decodedKey');
-      transaksiResponse apiResponse = await callthisapi.getAllTransaction(logindata);
+      transaksiResponse apiResponse = await callthisapi.getAllTransaction(token);
       if (apiResponse != null && apiResponse.dataTransaksi is List) {
         List<transaksi> processedTransactions = [];
         for (var currentTransaction in apiResponse.dataTransaksi) {
           String encryptedStatusLunas = currentTransaction.statusLunas;
-          log('DEBUG: Raw encryptedStatusLunas for idTransaksi ${currentTransaction.idTransaksi}: $encryptedStatusLunas');
-          log('DEBUG: Type of encryptedStatusLunas: ${encryptedStatusLunas.runtimeType}');
-          String jsonString;
-          if (encryptedStatusLunas.startsWith('{') && encryptedStatusLunas.contains('cyphertext')) {
-            jsonString = encryptedStatusLunas;
-          } else {
-            // Assume encryptedStatusLunas is just the cyphertext array
-            jsonString = '{"cyphertext":$encryptedStatusLunas}';
-          }
-          log('DEBUG: Final JSON string for decryption: $jsonString');
+          List<List<List<List<int>>>> ciphertextFormatted;
           try {
-            List<String> hasildekrip = AESDecryption.decrypt(decodedKey, '{"cyphertext":$encryptedStatusLunas}');
+            dynamic decodedCiphertext = jsonDecode(encryptedStatusLunas);
+            ciphertextFormatted = AesDecryptionUtil.parseCiphertext(jsonEncode(decodedCiphertext));
+            List<String> hasildekrip = AesDecryptionUtil.decrypt(decodedKey, ciphertextFormatted);
             if (hasildekrip.isNotEmpty) {
               String decryptedStatus = hasildekrip.first;
-              log('DEBUG: Successfully decrypted statusLunas for idTransaksi ${currentTransaction.idTransaksi}: $decryptedStatus');
-
               currentTransaction = transaksi(
                 idTransaksi: currentTransaction.idTransaksi,
                 idSpp: currentTransaction.idSpp,

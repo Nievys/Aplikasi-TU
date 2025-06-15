@@ -4,7 +4,7 @@ import 'package:path/path.dart';
 
 class localDB {
   static final localDB panggilini = localDB._internal();
-  factory  localDB() => panggilini;
+  factory localDB() => panggilini;
   static Database? _database;
 
   localDB._internal();
@@ -65,5 +65,26 @@ class localDB {
     return await db.delete(
         'transaksi'
     );
+  }
+
+  Future<List<transaksi>> getSpecificTransaction(String filter) async {
+    final db = await database;
+
+    final List<Map<String, dynamic>> maps = await db.query('transaksi');
+
+    List<transaksi> filteredTransactions = maps
+        .map((map) => transaksi.fromJson(map))
+        .where((trx) {
+      if (trx.statusLunas != null) {
+        final parts = trx.statusLunas!.split('|');
+        if (parts.isNotEmpty) {
+          return parts.first.trim() == filter;
+        }
+      }
+      return false;
+    })
+        .toList();
+
+    return filteredTransactions;
   }
 }

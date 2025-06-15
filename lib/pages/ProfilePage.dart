@@ -11,7 +11,7 @@ import 'package:aplikasikkp/ScreenView.dart';
 import 'package:aplikasikkp/Utils/ColorNest.dart' as thiscolor;
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../Methods/transaksiServices.dart';
+import '../Utils/transaksiServices.dart';
 import '../main.dart';
 
 class Profilepage extends StatefulWidget {
