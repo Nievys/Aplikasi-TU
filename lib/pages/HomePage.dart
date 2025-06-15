@@ -18,6 +18,7 @@ import 'package:aplikasikkp/Utils/ColorNest.dart' as thiscolor;
 import '../Utils/RpFormatter.dart';
 import '../model/transaksi.dart';
 import '../providers/bloc/transaksiCubit.dart';
+import '../widget/FutureMoneyKecil.dart';
 
 class HomePage extends StatefulWidget {
   final PageController pageController;
@@ -161,7 +162,7 @@ class _HomePageState extends State<HomePage> {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                          "SPP lunas",
+                                          "SPP lunas semester ini",
                                           style: GoogleFonts.poppins(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w400,
@@ -182,7 +183,7 @@ class _HomePageState extends State<HomePage> {
                                                 ),
                                               );
                                             } else if (state is transaksiSuccess) {
-                                              return FutureBuilder<List<transaksi>>(future: localDB.panggilini.getSpecificTransaction("1"), builder: (context, snapshot) {
+                                              return FutureBuilder<List<transaksi>>(future: localDB.panggilini.getSixMonthTransaction("1"), builder: (context, snapshot) {
                                                 if (snapshot.connectionState == ConnectionState.waiting) {
                                                   return CircularProgressIndicator();
                                                 } if (snapshot.hasError) {
@@ -247,58 +248,102 @@ class _HomePageState extends State<HomePage> {
                             Column(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Container(
-                                  width: MediaQuery.of(context).size.width * 0.4,
-                                  height: MediaQuery.of(context).size.height * 0.07,
-                                  padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.045, vertical: MediaQuery.of(context).size.height * 0.015),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: thiscolor.AppColor.ijoButton,
-                                    boxShadow:[BoxShadow(
-                                      color: Colors.black12,
-                                      blurRadius: 10,
-                                      offset: Offset(0, 12),
-                                    )],
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            "Tagihan bulan ini",
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w400,
-                                              color: thiscolor.AppColor.backgroundcolor,
+                                GestureDetector(
+                                  onTap: () {
+                                    widget.pageController.jumpToPage(1);
+                                  },
+                                  child: Container(
+                                    width: MediaQuery.of(context).size.width * 0.4,
+                                    height: MediaQuery.of(context).size.height * 0.07,
+                                    padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.045, vertical: MediaQuery.of(context).size.height * 0.015),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10),
+                                      color: thiscolor.AppColor.ijoButton,
+                                      boxShadow:[BoxShadow(
+                                        color: Colors.black12,
+                                        blurRadius: 10,
+                                        offset: Offset(0, 12),
+                                      )],
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              "Tagihan semester ini",
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w400,
+                                                color: thiscolor.AppColor.backgroundcolor,
+                                              ),
                                             ),
-                                          ),
-                                          Text(
-                                            "Rp. 123.123.123,00",
-                                            style: GoogleFonts.poppins(
-                                              fontSize: MediaQuery.of(context).size.width * 0.0335,
-                                              fontWeight: FontWeight.bold,
-                                              color: thiscolor.AppColor.backgroundcolor,
+                                            BlocBuilder<transaksiCubit, transaksiState>(
+                                                builder: (context, state) {
+                                                  if (state is transaksiLoading) {
+                                                    return CircularProgressIndicator();
+                                                  } else if (state is transaksiFailure) {
+                                                    return Text(
+                                                      "error state",
+                                                      style: GoogleFonts.poppins(
+                                                        fontSize: 14,
+                                                        fontWeight: FontWeight.w400,
+                                                        color: thiscolor.AppColor.backgroundcolor,
+                                                      ),
+                                                    );
+                                                  } else if (state is transaksiSuccess) {
+                                                    return FutureBuilder<List<transaksi>>(future: localDB.panggilini.getSixMonthTransaction("0"), builder: (context, snapshot) {
+                                                      if (snapshot.connectionState == ConnectionState.waiting) {
+                                                        return CircularProgressIndicator();
+                                                      } if (snapshot.hasError) {
+                                                        return Text(
+                                                          snapshot.error.toString(),
+                                                          style: GoogleFonts.poppins(
+                                                            fontSize: 14,
+                                                            fontWeight: FontWeight.w400,
+                                                            color: thiscolor.AppColor.backgroundcolor,
+                                                          ),
+                                                        );
+                                                      } else {
+                                                        List<transaksi> data = snapshot.data!;
+                                                        double totaltagihan = 0.0;
+                                                        for (var jumlahtagihan in snapshot.data!) {
+                                                          totaltagihan += (double.parse(jumlahtagihan.spp) - double.parse(jumlahtagihan.potongan));
+                                                        }
+                                                        return futuremoneykecil(amount: CurrencyFormat.convertToIdr(totaltagihan, 2).toString());
+                                                      }
+                                                    }
+                                                    );
+                                                  }
+                                                  return Text(
+                                                    "error future builder",
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: 18,
+                                                      fontWeight: FontWeight.bold,
+                                                      color: thiscolor.AppColor.backgroundcolor,
+                                                    ),
+                                                  );
+                                                }
                                             ),
-                                          )
-                                        ],
-                                      ),
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.end,
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            ">",
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 24,
-                                              fontWeight: FontWeight.w400,
-                                              color: thiscolor.AppColor.backgroundcolor,
-                                            ),
-                                          )
-                                        ],
-                                      )
-                                    ],
+                                          ],
+                                        ),
+                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.end,
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              ">",
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 24,
+                                                fontWeight: FontWeight.w400,
+                                                color: thiscolor.AppColor.backgroundcolor,
+                                              ),
+                                            )
+                                          ],
+                                        )
+                                      ],
+                                    ),
                                   ),
                                 ),
                                 Container(
@@ -321,37 +366,80 @@ class _HomePageState extends State<HomePage> {
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            "Total tagihan",
+                                            "Semester",
                                             style: GoogleFonts.poppins(
                                               fontSize: 11,
                                               fontWeight: FontWeight.w400,
                                               color: thiscolor.AppColor.backgroundcolor,
                                             ),
                                           ),
-                                          Text(
-                                            "12",
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.bold,
-                                              color: thiscolor.AppColor.backgroundcolor,
-                                            ),
-                                          )
-                                        ],
-                                      ),
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.end,
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            ">",
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 24,
-                                              fontWeight: FontWeight.w400,
-                                              color: thiscolor.AppColor.backgroundcolor,
-                                            ),
+                                          BlocBuilder<transaksiCubit, transaksiState>(
+                                              builder: (context, state) {
+                                                if (state is transaksiLoading) {
+                                                  return CircularProgressIndicator();
+                                                } else if (state is transaksiFailure) {
+                                                  return Text(
+                                                    "error state",
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: 14,
+                                                      fontWeight: FontWeight.w400,
+                                                      color: thiscolor.AppColor.backgroundcolor,
+                                                    ),
+                                                  );
+                                                } else if (state is transaksiSuccess) {
+                                                  return FutureBuilder<dynamic>(future: localDB.panggilini.getLatestSemesterAndYear(), builder: (context, snapshot) {
+                                                    if (snapshot.connectionState == ConnectionState.waiting) {
+                                                      return CircularProgressIndicator();
+                                                    } if (snapshot.hasError) {
+                                                      return Text(
+                                                        snapshot.error.toString(),
+                                                        style: GoogleFonts.poppins(
+                                                          fontSize: 14,
+                                                          fontWeight: FontWeight.w400,
+                                                          color: thiscolor.AppColor.backgroundcolor,
+                                                        ),
+                                                      );
+                                                    } else {
+                                                      final semester = snapshot.data!['semester'];
+                                                      final tahunajaran = snapshot.data!['tahun_ajaran'];
+                                                      return Text(
+                                                        "$semester - $tahunajaran",
+                                                        style: GoogleFonts.poppins(
+                                                          fontSize: 15,
+                                                          fontWeight: FontWeight.bold,
+                                                          color: thiscolor.AppColor.backgroundcolor,
+                                                        )
+                                                      );
+                                                    }
+                                                  }
+                                                  );
+                                                }
+                                                return Text(
+                                                  "error future builder",
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: 15,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: thiscolor.AppColor.backgroundcolor,
+                                                  ),
+                                                );
+                                              }
                                           ),
                                         ],
-                                      )
+                                      ),
+                                      // Column(
+                                      //   crossAxisAlignment: CrossAxisAlignment.end,
+                                      //   mainAxisAlignment: MainAxisAlignment.center,
+                                      //   children: [
+                                      //     Text(
+                                      //       ">",
+                                      //       style: GoogleFonts.poppins(
+                                      //         fontSize: 24,
+                                      //         fontWeight: FontWeight.w400,
+                                      //         color: thiscolor.AppColor.backgroundcolor,
+                                      //       ),
+                                      //     ),
+                                      //   ],
+                                      // )
                                     ],
                                   ),
                                 )

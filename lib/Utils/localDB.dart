@@ -84,7 +84,74 @@ class localDB {
       return false;
     })
         .toList();
-
     return filteredTransactions;
+  }
+
+  Future<List<transaksi>> getSixMonthTransaction(String filter) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query('transaksi');
+
+    DateTime now = DateTime.now();
+    DateTime sixMonthsAgo = DateTime(now.year, now.month - 5, now.day);
+
+    List<transaksi> filteredTransactions = maps
+        .map((map) => transaksi.fromJson(map))
+        .where((trx) {
+      if (trx.statusLunas != null) {
+        final parts = trx.statusLunas!.split('|');
+        if (parts.isNotEmpty) {
+          String status = parts[0].trim();
+          if (status != filter) return false;
+
+          if (parts.length > 1) {
+            try {
+              DateTime trxDate = DateTime.parse(parts[1].trim());
+              return trxDate.isAfter(sixMonthsAgo) || trxDate.isAtSameMomentAs(sixMonthsAgo);
+            } catch (e) {
+              return false;
+            }
+          }
+        }
+      }
+      return false;
+    })
+        .toList();
+    return filteredTransactions;
+  }
+
+  Future<Map<String, dynamic>?> getLatestSemesterAndYear() async {
+    final db = await database;
+
+    final List<Map<String, dynamic>> maps = await db.query(
+      'transaksi',
+      columns: ['semester', 'tahun_ajaran'],
+    );
+
+    if (maps.isEmpty) {
+      return null;
+    }
+
+    maps.sort((a, b) {
+      String yearA = a['tahun_ajaran'] ?? '';
+      String yearB = b['tahun_ajaran'] ?? '';
+
+      int yearAStart = int.tryParse(yearA.split('/').first) ?? 0;
+      int yearBStart = int.tryParse(yearB.split('/').first) ?? 0;
+
+      if (yearAStart != yearBStart) {
+        return yearBStart.compareTo(yearAStart);
+      } else {
+        int semA = a['semester'] ?? 0;
+        int semB = b['semester'] ?? 0;
+        return semB.compareTo(semA);
+      }
+    });
+
+    final latest = maps.first;
+
+    return {
+      'semester': latest['semester'],
+      'tahun_ajaran': latest['tahun_ajaran'],
+    };
   }
 }
