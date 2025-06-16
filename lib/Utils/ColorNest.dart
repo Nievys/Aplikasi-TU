@@ -7,4 +7,7 @@ class AppColor{
   static Color backgroundcolor = const Color(0xFFD8D8D8);
   static Color judulLogincuy = const Color(0xFF2E4052);
   static Color buatprofile = const Color(0xFFD56062);
+  static Color brokenwhite = const Color(0xFFe4e7eb);
+  static Color putih = const Color(0xFFFFFFFF);
+  static Color background = const Color(0xFFD8D8D8);
 }

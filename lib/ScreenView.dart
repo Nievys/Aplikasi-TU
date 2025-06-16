@@ -69,61 +69,84 @@ class isiScreenview extends State<Screenview> with SingleTickerProviderStateMixi
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
+      ),
+    );
+
     return Scaffold(
       extendBody: true,
-      backgroundColor: thiscolor.AppColor.backgroundcolor,
+      backgroundColor: Colors.transparent,
       body: Stack(
-        clipBehavior: Clip.none,
         children: [
-          isiPageview(pageController: pageController, onPageChange: (index) {
-            BlocProvider.of<bottomnavcubit>(context).changeSelectedPage(index);
-            if (selectedPage != index) {
+          // Ini PageView yg full screen
+          PageView(
+            controller: pageController,
+            onPageChanged: (index) {
               setState(() {
                 selectedPage = index;
               });
-            }
-          }),
-        ],
-      ),
-      bottomNavigationBar: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 70, vertical: 15),
-        padding: const EdgeInsets.symmetric(horizontal: 15),
-        decoration: BoxDecoration(
-          color: thiscolor.AppColor.ijoButton,
-          borderRadius: BorderRadius.circular(40),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.5),
-              spreadRadius: 5,
-              blurRadius: 7,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: GNav(
-          selectedIndex: selectedPage,
-          onTabChange: (index) {
-            setState(() {
-              selectedPage = index;
-              pageController.jumpToPage(index);
               BlocProvider.of<bottomnavcubit>(context).changeSelectedPage(index);
-            });
-          },
-          color: thiscolor.AppColor.backgroundcolor,
-          activeColor: thiscolor.AppColor.ijoButton,
-          tabBackgroundColor: thiscolor.AppColor.buttonColor,
-          gap: 10,
-          iconSize: 24,
-          curve: Curves.easeInToLinear,
-          duration: const Duration(milliseconds: 300),
-          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-          tabMargin: const EdgeInsets.symmetric(vertical: 10),
-          tabs: const [
-            GButton(icon: Icons.home, text: 'Home'),
-            GButton(icon: Icons.view_stream_rounded, text: 'Tagihan'),
-            GButton(icon: Icons.timer_rounded, text: 'Riwayat'),
-          ],
-        ),
+            },
+            children: [
+              HomePage(pageController: pageController),
+              const Tagihan(),
+              const Riwayat(),
+            ],
+          ),
+
+          // BOTTOM NAV SEBAGAI OVERLAY
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 20, // Jarak dari bawah
+            child: Center(
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 70),
+                padding: const EdgeInsets.symmetric(horizontal: 15),
+                decoration: BoxDecoration(
+                  color: thiscolor.AppColor.ijoButton,
+                  borderRadius: BorderRadius.circular(40),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 5,
+                      blurRadius: 17,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: GNav(
+                  selectedIndex: selectedPage,
+                  onTabChange: (index) {
+                    pageController.jumpToPage(index);
+                    setState(() {
+                      selectedPage = index;
+                    });
+                    BlocProvider.of<bottomnavcubit>(context).changeSelectedPage(index);
+                  },
+                  color: thiscolor.AppColor.backgroundcolor,
+                  activeColor: thiscolor.AppColor.ijoButton,
+                  tabBackgroundColor: thiscolor.AppColor.buttonColor,
+                  gap: 10,
+                  iconSize: 24,
+                  curve: Curves.easeInToLinear,
+                  duration: const Duration(milliseconds: 300),
+                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                  tabMargin: const EdgeInsets.symmetric(vertical: 10),
+                  tabs: const [
+                    GButton(icon: Icons.home, text: 'Home'),
+                    GButton(icon: Icons.view_stream_rounded, text: 'Tagihan'),
+                    GButton(icon: Icons.timer_rounded, text: 'Riwayat'),
+                  ],
+                ),
+              ),
+            ),
+          )
+        ],
       ),
     );
   }
