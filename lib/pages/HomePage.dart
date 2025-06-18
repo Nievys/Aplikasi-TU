@@ -542,7 +542,7 @@ class _HomePageState extends State<HomePage> {
                                         ),
                                       );
                                     } else if (state is transaksiSuccess) {
-                                      return FutureBuilder<List<transaksi>>(future: localDB.panggilini.getLatestDateTransactionsSortedByMonth(), builder: (context, snapshot) {
+                                      return FutureBuilder<List<transaksi>>(future: localDB.panggilini.getSixMonthTransactionWithoutFilter(), builder: (context, snapshot) {
                                         if (snapshot.connectionState == ConnectionState.waiting) {
                                           return CircularProgressIndicator();
                                         } if (snapshot.hasError) {
@@ -562,7 +562,7 @@ class _HomePageState extends State<HomePage> {
                                               //padding: const EdgeInsets.symmetric(horizontal: 20),
                                               itemBuilder:(context, index) {
                                                 final transaksi = snapshot.data?[index];
-                                                return Pembayarancard(transaction: transaksi!);
+                                                return Pembayarancard(transaction: transaksi!, isHome: true);
                                               }
                                           );
                                         }

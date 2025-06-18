@@ -22,8 +22,8 @@ class TransactionStorageService {
 }
 
 class transaksiServices {
-  static final String baseUrl = 'http://192.168.0.100:12000/api';
-  //static final String baseUrl = 'http://10.74.80.224:12000/api';
+  //static final String baseUrl = 'http://192.168.0.100:12000/api';
+  static final String baseUrl = 'http://10.74.80.224:12000/api';
   var token;
 
   Future<transaksiResponse> getAllTransaction(data) async {

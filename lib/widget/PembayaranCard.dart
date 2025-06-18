@@ -11,8 +11,9 @@ import '../Utils/localDB.dart';
 
 class Pembayarancard extends StatelessWidget {
   final transaksi transaction;
+  final bool isHome;
 
-  const Pembayarancard({super.key, required this.transaction});
+  const Pembayarancard({super.key, required this.transaction, required this.isHome});
 
   @override
   Widget build(BuildContext context) {
@@ -91,7 +92,7 @@ class Pembayarancard extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          isLunas ? "Lunas" : "Belum Lunas",
+          isHome ? isLunas ? "Lunas" : "Belum Lunas" : "",
           style: GoogleFonts.poppins(
             color: thiscolor.AppColor.ijoButton,
             fontSize: 14,

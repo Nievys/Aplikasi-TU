@@ -25,8 +25,8 @@ class StorageService {
 }
 
 class authServices {
-  static final String baseUrl = 'http://192.168.0.100:12000/api';
-  //static final String baseUrl = 'http://10.74.80.224:12000/api';
+  //static final String baseUrl = 'http://192.168.0.100:12000/api';
+  static final String baseUrl = 'http://10.74.80.224:12000/api';
   var token;
 
   Future<loginData> loginjwt(data) async {
@@ -35,7 +35,6 @@ class authServices {
       body: jsonEncode(data),
       headers: _setHeaders(),
     );
-    log("sblm masuk response if");
     if (response.statusCode == 200) {
       Map<String, dynamic> isidata = jsonDecode(response.body);
       loginData user = loginData.fromJson(isidata);
@@ -52,6 +51,7 @@ class authServices {
       headers: _setHeaders(),
       body: jsonEncode({"token": token}),
     );
+    log("${response.statusCode}");
     if (response.statusCode == 200) {
       Map<String, dynamic> isidata = jsonDecode(response.body);
       cekToken hasiltoken = cekToken.fromJson(isidata);

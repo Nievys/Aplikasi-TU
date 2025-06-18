@@ -93,8 +93,8 @@ class isiScreenview extends State<Screenview> with SingleTickerProviderStateMixi
             },
             children: [
               HomePage(pageController: pageController),
-              const Tagihan(),
-              const Riwayat(),
+              Tagihan(pageController: pageController),
+              Riwayat(pageController: pageController),
             ],
           ),
 
@@ -157,8 +157,8 @@ class isiScreenview extends State<Screenview> with SingleTickerProviderStateMixi
       onPageChanged: onPageChange,
         children: <Widget>[
           HomePage(pageController: pageController),
-          Tagihan(),
-          Riwayat(),
+          Tagihan(pageController: pageController),
+          Riwayat(pageController: pageController),
         ],
     );
   }

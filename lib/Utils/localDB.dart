@@ -119,6 +119,50 @@ class localDB {
     return filteredTransactions;
   }
 
+  Future<int> countTotalTagihan(String statusFilter) async {
+    final db = await database;
+
+    final countResult = Sqflite.firstIntValue(
+        await db.rawQuery(
+        '''
+        SELECT COUNT(*) 
+        FROM transaksi 
+        WHERE status_lunas LIKE ?
+        ''',
+        ['$statusFilter|%']
+    )
+    );
+
+    return countResult ?? 0;
+  }
+
+  Future<List<transaksi>> getSixMonthTransactionWithoutFilter() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query('transaksi');
+
+    DateTime now = DateTime.now();
+    DateTime sixMonthsAgo = DateTime(now.year, now.month - 5, now.day);
+
+    List<transaksi> filteredTransactions = maps
+        .map((map) => transaksi.fromJson(map))
+        .where((trx) {
+      if (trx.statusLunas != null) {
+        final parts = trx.statusLunas!.split('|');
+        if (parts.length > 1) {
+          try {
+            DateTime trxDate = DateTime.parse(parts[1].trim());
+            return trxDate.isAfter(sixMonthsAgo) || trxDate.isAtSameMomentAs(sixMonthsAgo);
+          } catch (e) {
+            return false;
+          }
+        }
+      }
+      return false;
+    }).toList();
+
+    return filteredTransactions;
+  }
+
   // Future<Map<String, dynamic>?> getLatestSemesterAndYear() async {
   //   final db = await database;
   //
@@ -155,7 +199,6 @@ class localDB {
   //   };
   // }
 
-  // error function
   Future<List<transaksi>> getLatestDateTransactionsFiltered(String statusFilter) async {
     final db = await database;
 
