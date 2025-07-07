@@ -44,6 +44,7 @@ class transaksiCubit extends Cubit<transaksiState> {
               currentTransaction = transaksi(
                 idTransaksi: currentTransaction.idTransaksi,
                 idSpp: currentTransaction.idSpp,
+                nama_kelas: currentTransaction.nama_kelas,
                 spp: currentTransaction.spp,
                 potongan: currentTransaction.potongan,
                 bulan: currentTransaction.bulan,
@@ -62,6 +63,10 @@ class transaksiCubit extends Cubit<transaksiState> {
                 deletedBy: currentTransaction.deletedBy,
                 namaLengkap: currentTransaction.namaLengkap,
                 idAccount: currentTransaction.idAccount,
+                status_verifikasi: currentTransaction.status_verifikasi,
+                id_verifikasi: currentTransaction.id_verifikasi,
+                nisn: currentTransaction.nisn,
+                id_NIS: currentTransaction.id_NIS,
               );
             } else {
               log('Warning: Decryption of statusLunas yielded no results for idTransaksi: ${currentTransaction.idTransaksi}');
@@ -72,6 +77,7 @@ class transaksiCubit extends Cubit<transaksiState> {
             currentTransaction = transaksi(
               idTransaksi: currentTransaction.idTransaksi,
               idSpp: currentTransaction.idSpp,
+              nama_kelas: currentTransaction.nama_kelas,
               spp: currentTransaction.spp,
               potongan: currentTransaction.potongan,
               bulan: currentTransaction.bulan,
@@ -90,6 +96,10 @@ class transaksiCubit extends Cubit<transaksiState> {
               deletedBy: currentTransaction.deletedBy,
               namaLengkap: currentTransaction.namaLengkap,
               idAccount: currentTransaction.idAccount,
+              status_verifikasi: currentTransaction.status_verifikasi,
+              id_verifikasi: currentTransaction.id_verifikasi,
+              nisn: currentTransaction.nisn,
+              id_NIS: currentTransaction.id_NIS,
             );
           }
           processedTransactions.add(currentTransaction);

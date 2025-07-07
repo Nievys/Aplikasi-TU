@@ -8,12 +8,15 @@ import 'package:google_fonts/google_fonts.dart';
 import '../Utils/ColorNest.dart' as thiscolor;
 import '../Utils/RpFormatter.dart';
 import '../Utils/localDB.dart';
+import '../auth/authServices.dart';
+import '../providers/bloc/transaksiCubit.dart';
 
 class Pembayarancard extends StatelessWidget {
   final transaksi transaction;
   final bool isHome;
+  final VoidCallback onRefresh;
 
-  const Pembayarancard({super.key, required this.transaction, required this.isHome});
+  const Pembayarancard({super.key, required this.transaction, required this.isHome, required this.onRefresh});
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +30,11 @@ class Pembayarancard extends StatelessWidget {
               isScrollControlled: true,
               backgroundColor: Colors.transparent,
               builder: (context) => Bottomsheetpembayaran(transaction: transaction, parentContext: parentContext)
-          );
+          ).then((result) async {
+            if (result == true) {
+              onRefresh();
+            }
+          });
           //deleteAccount(account);
           //context.read<lastAkunCubit>().selectAccount(account.account_id ?? 0);
         },
@@ -77,7 +84,7 @@ class Pembayarancard extends StatelessWidget {
                 ],
               ),
               Spacer(),
-              totalspp(CurrencyFormat.convertToIdr(double.parse(transaction.spp) - double.parse(transaction.potongan), 2), transaction.statusLunas),
+              totalspp(CurrencyFormat.convertToIdr(double.parse(transaction.spp) - double.parse(transaction.potongan), 2), transaction.statusLunas, transaction.status_verifikasi ?? 0),
             ],
           ),
         ),
@@ -85,14 +92,15 @@ class Pembayarancard extends StatelessWidget {
     );
   }
 
-  Widget totalspp(String sppril, String statusLunas) {
+  Widget totalspp(String sppril, String statusLunas, int StatusVerifikasi) {
     final isLunas = statusLunas.split("|").isNotEmpty && statusLunas.split("|").first.trim() == "1";
+    final bool isVerified = StatusVerifikasi == 1;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          isHome ? isLunas ? "Lunas" : "Belum Lunas" : "",
+          isHome ? isLunas ? isVerified ? "Lunas" : "Perlu Verifikasi" : "Belum Lunas" : "",
           style: GoogleFonts.poppins(
             color: thiscolor.AppColor.ijoButton,
             fontSize: 14,

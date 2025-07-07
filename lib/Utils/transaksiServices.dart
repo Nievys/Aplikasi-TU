@@ -22,8 +22,8 @@ class TransactionStorageService {
 }
 
 class transaksiServices {
-  //static final String baseUrl = 'http://192.168.0.100:12000/api';
-  static final String baseUrl = 'http://10.74.80.224:12000/api';
+  static final String baseUrl = 'http://192.168.0.101:12000/api';
+  //static final String baseUrl = 'http://10.74.80.224:12000/api';
   var token;
 
   Future<transaksiResponse> getAllTransaction(data) async {
@@ -37,7 +37,7 @@ class transaksiServices {
       transaksiResponse user = transaksiResponse.fromJson(isidata);
       return user;
     } else {
-      throw Exception("Failed to login");
+      throw Exception("failed");
     }
   }
 
@@ -45,4 +45,17 @@ class transaksiServices {
     'Content-type': 'application/json',
     'Accept': 'application/json',
   };
+
+  Future<String> updateConfirmation(Map<String, dynamic> data) async {
+    var response = await http.post(
+      Uri.parse("$baseUrl/verifikasi-spp"),
+      body: jsonEncode(data),
+      headers: _setHeaders(),
+    );
+    if (response.statusCode == 200) {
+      return("Success");
+    } else {
+      throw Exception("Failed");
+    }
+  }
 }

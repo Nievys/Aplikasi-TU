@@ -21,6 +21,7 @@ import '../Utils/RpFormatter.dart';
 import '../model/transaksi.dart';
 import '../providers/bloc/transaksiCubit.dart';
 import '../widget/FutureMoneyKecil.dart';
+import '../widget/PopupMenuWidget.dart';
 
 class HomePage extends StatefulWidget {
   final PageController pageController;
@@ -37,7 +38,18 @@ class _HomePageState extends State<HomePage> {
 
   void initState() {
     userWhoLogged = loadUserData();
-    loadAllTransaction();
+    //loadAllTransaction();
+    refreshData();
+  }
+
+  Future<void> refreshData() async {
+    final token = await StorageService().getToken();
+    var data = {
+      'token' : token
+    };
+    if (token != null) {
+      context.read<transaksiCubit>().AllTransaction(data);
+    }
   }
 
   Future<userLogin> loadUserData() async {
@@ -118,13 +130,9 @@ class _HomePageState extends State<HomePage> {
                                 borderRadius: BorderRadius.circular(25),
                                 color: thiscolor.AppColor.backgroundcolor,
                               ),
-                              child: IconButton(
-                                onPressed: () {
-                                  Get.to(() => const Profilepage());
-                                },
-                                icon: Icon(Icons.notifications_none_rounded),
-                                iconSize: 26,
-                                color: thiscolor.AppColor.ijoButton,
+                              child: PopupMenuWidget(
+                                iconColor: thiscolor.AppColor.ijoButton,
+                                backgroundColor: thiscolor.AppColor.brokenwhite,
                               ),
                             ),
                           ],
@@ -487,7 +495,7 @@ class _HomePageState extends State<HomePage> {
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
-                                            "Pembayaran Semester",
+                                            "Pembayaran 6 Bulan Terbaru",
                                             style: GoogleFonts.poppins(
                                                 fontSize: 14,
                                                 fontWeight: FontWeight.w400,
@@ -562,7 +570,7 @@ class _HomePageState extends State<HomePage> {
                                               //padding: const EdgeInsets.symmetric(horizontal: 20),
                                               itemBuilder:(context, index) {
                                                 final transaksi = snapshot.data?[index];
-                                                return Pembayarancard(transaction: transaksi!, isHome: true);
+                                                return Pembayarancard(transaction: transaksi!, isHome: true, onRefresh: refreshData);
                                               }
                                           );
                                         }

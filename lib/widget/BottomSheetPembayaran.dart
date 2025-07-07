@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:aplikasikkp/Utils/transaksiServices.dart';
 import 'package:aplikasikkp/model/transaksi.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,9 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../Utils/ColorNest.dart' as thiscolor;
 import '../Utils/RpFormatter.dart';
+import '../Utils/localDB.dart';
+import '../auth/authServices.dart';
+import '../providers/bloc/transaksiCubit.dart';
 
 class Bottomsheetpembayaran extends StatefulWidget {
   final transaksi transaction;
@@ -48,6 +52,9 @@ class IsiBottomSheetPembayaran extends State<Bottomsheetpembayaran> {
   @override
   Widget build(BuildContext context) {
     final parentContext = context;
+    bool isConfirmed = widget.transaction.status_verifikasi == 1;
+    bool isLunas = widget.transaction.statusLunas.split("|").isNotEmpty && widget.transaction.statusLunas.split("|").first.trim() == "1";
+    transaksiServices apiTransaksi = transaksiServices();
 
     // TODO: implement build
     return DraggableScrollableSheet(
@@ -278,28 +285,59 @@ class IsiBottomSheetPembayaran extends State<Bottomsheetpembayaran> {
 
                       SizedBox(height: MediaQuery.of(contextBottomSheet).size.height * 0.01),
 
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: thiscolor.AppColor.ijoButton,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
+                      Container(
+                        margin: EdgeInsets.symmetric(horizontal: MediaQuery.of(contextBottomSheet).size.width * 0.085),
+                        width: MediaQuery.of(contextBottomSheet).size.width * 0.8,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: thiscolor.AppColor.ijoButton,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                ),
+                                child: Text(
+                                  "Tutup",
+                                  style: GoogleFonts.poppins(
+                                    color: thiscolor.AppColor.background,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.normal,
+                                  ),
+                                ),
                               ),
                             ),
-                            child: Text(
-                                "Tutup",
-                                style: GoogleFonts.poppins(
-                                  color: thiscolor.AppColor.background,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.normal,
-                                )),
-                          ),
-                        ],
+                            if (!isConfirmed && isLunas)
+                              SizedBox(width: 10),
+                            if (!isConfirmed && isLunas)
+                              ElevatedButton(
+                                onPressed: () async {
+                                  bool success = await konfirmasiPembayaran(context, widget.transaction);
+                                  if (success) {
+                                    Navigator.pop(context, true);
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: thiscolor.AppColor.ijoButton,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                ),
+                                child: Text(
+                                    "Verifikasi Pembayaran",
+                                    style: GoogleFonts.poppins(
+                                      color: thiscolor.AppColor.background,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.normal,
+                                    )),
+                              ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -309,6 +347,50 @@ class IsiBottomSheetPembayaran extends State<Bottomsheetpembayaran> {
         }
     );
   }
+
+  Future<bool> konfirmasiPembayaran(BuildContext context, transaksi trx) async {
+    try {
+      final storageService = StorageService();
+      final String? token = await storageService.getToken();
+
+      if (token == null || token.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Token tidak ditemukan")),
+        );
+        return false;
+      }
+
+      final data = {
+        'token': token,
+        'id_verifikasi': trx.id_verifikasi,
+        'status': 1,
+      };
+      final response = await transaksiServices().updateConfirmation(data);
+
+      if (response.toString().toLowerCase() != "success") {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Gagal konfirmasi ke server")),
+        );
+        return false;
+      }
+
+      final updatedTrx = trx.copyWith(status_verifikasi: 1);
+      await localDB().updateTransaction(updatedTrx);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Konfirmasi berhasil")),
+      );
+      return true;
+
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Terjadi kesalahan saat konfirmasi")),
+      );
+      print("Error konfirmasi: $e");
+      return false;
+    }
+  }
+
 
   Widget saldoawalmasuk (String title, String amount) {
     return Align(

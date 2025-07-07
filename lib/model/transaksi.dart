@@ -4,6 +4,7 @@ import 'dart:convert';
 class transaksi {
   final int idTransaksi;
   final int idSpp;
+  final String nama_kelas;
   final String spp;
   final String potongan;
   final int bulan;
@@ -17,15 +18,20 @@ class transaksi {
   final String createdAt;
   final String updatedAt;
   final String? deletedAt;
-  final String createdBy;
-  final String updatedBy;
-  final String? deletedBy;
+  final int createdBy;
+  final int? updatedBy;
+  final int? deletedBy;
   final String namaLengkap;
   final int idAccount;
+  final int? status_verifikasi;
+  final int id_verifikasi;
+  final String nisn;
+  final String id_NIS;
 
   transaksi({
     required this.idTransaksi,
     required this.idSpp,
+    required this.nama_kelas,
     required this.spp,
     required this.potongan,
     required this.bulan,
@@ -40,16 +46,53 @@ class transaksi {
     required this.updatedAt,
     this.deletedAt,
     required this.createdBy,
-    required this.updatedBy,
+    this.updatedBy,
     this.deletedBy,
     required this.namaLengkap,
     required this.idAccount,
+    this.status_verifikasi,
+    required this.id_verifikasi,
+    required this.nisn,
+    required this.id_NIS,
   });
+
+  transaksi copyWith({
+    int? status_verifikasi,
+  }) {
+    return transaksi(
+      idTransaksi: this.idTransaksi,
+      idSpp: this.idSpp,
+      nama_kelas: this.nama_kelas,
+      spp: this.spp,
+      potongan: this.potongan,
+      bulan: this.bulan,
+      semester: this.semester,
+      tahunAjaran: this.tahunAjaran,
+      statusLunas: this.statusLunas,
+      idKetuaKomite: this.idKetuaKomite,
+      namaKetuaKomite: this.namaKetuaKomite,
+      idKepalaSekolah: this.idKepalaSekolah,
+      kepalaSekolah: this.kepalaSekolah,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
+      deletedAt: this.deletedAt,
+      createdBy: this.createdBy,
+      updatedBy: this.updatedBy,
+      deletedBy: this.deletedBy,
+      namaLengkap: this.namaLengkap,
+      idAccount: this.idAccount,
+      status_verifikasi: status_verifikasi ?? this.status_verifikasi,
+      id_verifikasi: this.id_verifikasi,
+      nisn: this.nisn,
+      id_NIS: this.id_NIS,
+    );
+  }
 
   factory transaksi.fromJson(Map<String, dynamic> json) {
     return transaksi(
       idTransaksi: json['id_transaksi'],
       idSpp: json['id_spp'],
+      nama_kelas: json['nama_kelas'] ?? '',
       spp: json['spp'],
       potongan: json['potongan'],
       bulan: json['bulan'],
@@ -68,12 +111,17 @@ class transaksi {
       deletedBy: json['deleted_by'],
       namaLengkap: json['nama_lengkap'],
       idAccount: json['id_account'],
+      status_verifikasi: json['status_verifikasi'],
+      id_verifikasi: json['id_verifikasi'],
+      nisn: json['nisn'],
+      id_NIS: json['id_NIS'],
     );
   }
 
   Map<String, dynamic> toJson() => {
     'id_transaksi': idTransaksi,
     'id_spp': idSpp,
+    'nama_kelas': nama_kelas,
     'spp': spp,
     'potongan': potongan,
     'bulan': bulan,
@@ -92,5 +140,9 @@ class transaksi {
     'deleted_by': deletedBy,
     'nama_lengkap': namaLengkap,
     'id_account': idAccount,
+    'status_verifikasi': status_verifikasi ?? false,
+    'id_verifikasi': id_verifikasi,
+    'nisn': nisn,
+    'id_NIS': id_NIS,
   };
 }

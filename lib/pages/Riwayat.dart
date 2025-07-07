@@ -12,10 +12,12 @@ import 'package:aplikasikkp/Utils/ColorNest.dart' as thiscolor;
 
 import '../Utils/RpFormatter.dart';
 import '../Utils/localDB.dart';
+import '../auth/authServices.dart';
 import '../model/transaksi.dart';
 import '../providers/bloc/transaksiCubit.dart';
 import '../widget/FutureMoney.dart';
 import '../widget/PembayaranCard.dart';
+import '../widget/PopupMenuWidget.dart';
 import 'ProfilePage.dart';
 
 class Riwayat extends StatefulWidget {
@@ -27,7 +29,39 @@ class Riwayat extends StatefulWidget {
 }
 
 class isiTenggat extends State<Riwayat> {
+  String? selectedSemester;
+  String? selectedTahunAjaran;
+  List<String> semesterList = [];
+  List<String> tahunAjaranList = [];
   int currentPage = 3;
+
+  @override
+  void initState() {
+    super.initState();
+    refreshData();
+    loadFilterOptions();
+  }
+
+  Future<void> loadFilterOptions() async {
+    final data = await localDB.panggilini.getTransaksi();
+    final semesters = data.map((e) => e.semester.toString()).toSet().toList();
+    final tahunAjaran = data.map((e) => e.tahunAjaran).toSet().toList();
+
+    setState(() {
+      semesterList = semesters;
+      tahunAjaranList = tahunAjaran;
+    });
+  }
+
+  Future<void> refreshData() async {
+    final token = await StorageService().getToken();
+    var data = {
+      'token' : token
+    };
+    if (token != null) {
+      context.read<transaksiCubit>().AllTransaction(data);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,13 +97,9 @@ class isiTenggat extends State<Riwayat> {
                             borderRadius: BorderRadius.circular(25),
                             color: thiscolor.AppColor.backgroundcolor,
                           ),
-                          child: IconButton(
-                            onPressed: () {
-                              Get.to(() => const Profilepage());
-                            },
-                            icon: Icon(Icons.notifications_none_rounded),
-                            iconSize: 26,
-                            color: thiscolor.AppColor.ijoButton,
+                          child: PopupMenuWidget(
+                            iconColor: thiscolor.AppColor.ijoButton,
+                            backgroundColor: thiscolor.AppColor.brokenwhite,
                           ),
                         ),
                       ],
@@ -88,7 +118,7 @@ class isiTenggat extends State<Riwayat> {
                       children: [
                         GestureDetector(
                           onTap: () {
-                            widget.pageController.jumpToPage(2);
+
                           },
                           child: Container(
                             width: MediaQuery.of(context).size.width * 0.6,
@@ -107,7 +137,7 @@ class isiTenggat extends State<Riwayat> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                      "Riwayat Pembayaran",
+                                      "Jumlah Seluruh Terbayarkan",
                                       style: GoogleFonts.poppins(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w400,
@@ -128,7 +158,7 @@ class isiTenggat extends State<Riwayat> {
                                             ),
                                           );
                                         } else if (state is transaksiSuccess) {
-                                          return FutureBuilder<List<transaksi>>(future: localDB.panggilini.getSpecificTransaction("1"), builder: (context, snapshot) {
+                                          return FutureBuilder<List<transaksi>>(future: localDB.panggilini.getSixMonthTransaction("1"), builder: (context, snapshot) {
                                             if (snapshot.connectionState == ConnectionState.waiting) {
                                               return CircularProgressIndicator();
                                             } if (snapshot.hasError) {
@@ -161,29 +191,6 @@ class isiTenggat extends State<Riwayat> {
                                         );
                                       }
                                   ),
-                                  // Expanded(
-                                  //   child: Row(
-                                  //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  //     children: [
-                                  //       Text(
-                                  //         "Lihat riwayat pembayaran",
-                                  //         style: GoogleFonts.poppins(
-                                  //             fontSize: 12,
-                                  //             fontWeight: FontWeight.w400,
-                                  //             color: thiscolor.AppColor.backgroundcolor
-                                  //         ),
-                                  //       ),
-                                  //       Text(
-                                  //         ">",
-                                  //         style: GoogleFonts.poppins(
-                                  //             fontSize: 12,
-                                  //             fontWeight: FontWeight.w400,
-                                  //             color: thiscolor.AppColor.backgroundcolor
-                                  //         ),
-                                  //       )
-                                  //     ],
-                                  //   ),
-                                  // ),
                                 ]
                             ),
                           ),
@@ -226,7 +233,7 @@ class isiTenggat extends State<Riwayat> {
                                           ),
                                         );
                                       } else if (state is transaksiSuccess) {
-                                        return FutureBuilder<int>(future: localDB.panggilini.countTotalTagihan("1"), builder: (context, snapshot) {
+                                        return FutureBuilder<List<transaksi>>(future: localDB.panggilini.getSixMonthTransaction("1"), builder: (context, snapshot) {
                                           if (snapshot.connectionState == ConnectionState.waiting) {
                                             return CircularProgressIndicator();
                                           } if (snapshot.hasError) {
@@ -244,7 +251,7 @@ class isiTenggat extends State<Riwayat> {
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
                                                 Text(
-                                                    data.toString(),
+                                                    data.length.toString(),
                                                     style: GoogleFonts.poppins(
                                                         color: thiscolor.AppColor.backgroundcolor,
                                                         fontSize: 18,
@@ -252,7 +259,7 @@ class isiTenggat extends State<Riwayat> {
                                                     )
                                                 ),
                                                 Text(
-                                                  "Tagihan",
+                                                  "Kwitansi",
                                                   style: GoogleFonts.poppins(
                                                       color: thiscolor.AppColor.backgroundcolor,
                                                       fontWeight: FontWeight.normal,
@@ -307,39 +314,125 @@ class isiTenggat extends State<Riwayat> {
                             Expanded(
                                 child: SizedBox(
                                   width: MediaQuery.of(context).size.width * 0.8,
-                                  height: MediaQuery.of(context).size.height * 0.02,
+                                  height: MediaQuery.of(context).size.height * 0.04,
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
-                                        "Seluruh Tagihan",
+                                        "Riwayat",
                                         style: GoogleFonts.poppins(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w400,
                                             color: thiscolor.AppColor.ijoButton
                                         ),
                                       ),
-                                      // ElevatedButton(
-                                      //   onPressed: () {
-                                      //     widget.pageController.jumpToPage(1);
-                                      //   },
-                                      //   style: ElevatedButton.styleFrom(
-                                      //     backgroundColor: thiscolor.AppColor.backgroundcolor,
-                                      //     side: BorderSide(color: thiscolor.AppColor.ijoButton),
-                                      //     shape: RoundedRectangleBorder(
-                                      //       borderRadius: BorderRadius.circular(30),
-                                      //     ),
-                                      //   ),
-                                      //   child:
-                                      //   Text(
-                                      //     "Lihat semua",
-                                      //     style: GoogleFonts.poppins(
-                                      //       color: thiscolor.AppColor.ijoButton,
-                                      //       fontSize: 10,
-                                      //       fontWeight: FontWeight.normal,
-                                      //     ),
-                                      //   ),
-                                      // ),
+                                      const Spacer(),
+
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
+                                            color: thiscolor.AppColor.brokenwhite,
+                                            width: 1.5,
+                                          ),
+                                          borderRadius: BorderRadius.circular(8),
+                                          color: thiscolor.AppColor.ijoButton,
+                                        ),
+                                        child: DropdownButtonHideUnderline(
+                                          child: DropdownButton<String>(
+                                            hint: Text(
+                                                "Semester",
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 11,
+                                                  color: thiscolor.AppColor.backgroundcolor,
+                                                )
+                                            ),
+                                            value: selectedSemester,
+                                            icon: Icon(
+                                              Icons.arrow_drop_down,
+                                              color: thiscolor.AppColor.backgroundcolor,
+                                            ),
+                                            dropdownColor: thiscolor.AppColor.ijoButton,
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 11,
+                                              color: thiscolor.AppColor.backgroundcolor,
+                                            ),
+                                            items: semesterList.map((value) {
+                                              return DropdownMenuItem<String>(
+                                                value: value,
+                                                child: Container(
+                                                  padding: const EdgeInsets.symmetric(vertical: 4),
+                                                  child: Text(
+                                                      value,
+                                                      style: GoogleFonts.poppins(
+                                                        fontSize: 11,
+                                                        color: thiscolor.AppColor.backgroundcolor,
+                                                      )
+                                                  ),
+                                                ),
+                                              );
+                                            }).toList(),
+                                            onChanged: (value) {
+                                              setState(() {
+                                                selectedSemester = value;
+                                              });
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
+                                            color: thiscolor.AppColor.brokenwhite,
+                                            width: 1.5,
+                                          ),
+                                          borderRadius: BorderRadius.circular(8),
+                                          color: thiscolor.AppColor.ijoButton,
+                                        ),
+                                        child: DropdownButtonHideUnderline(
+                                          child: DropdownButton<String>(
+                                            hint: Text(
+                                                "Tahun Ajaran",
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 11,
+                                                  color: thiscolor.AppColor.backgroundcolor,
+                                                )
+                                            ),
+                                            value: selectedTahunAjaran,
+                                            icon: Icon(
+                                              Icons.arrow_drop_down,
+                                              color: thiscolor.AppColor.backgroundcolor,
+                                            ),
+                                            dropdownColor: thiscolor.AppColor.ijoButton,
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 11,
+                                              color: thiscolor.AppColor.backgroundcolor,
+                                            ),
+                                            items: tahunAjaranList.map((value) {
+                                              return DropdownMenuItem<String>(
+                                                value: value,
+                                                child: Container(
+                                                  padding: const EdgeInsets.symmetric(vertical: 4),
+                                                  child: Text(
+                                                      value,
+                                                      style: GoogleFonts.poppins(
+                                                        fontSize: 11,
+                                                        color: thiscolor.AppColor.backgroundcolor,
+                                                      )
+                                                  ),
+                                                ),
+                                              );
+                                            }).toList(),
+                                            onChanged: (value) {
+                                              setState(() {
+                                                selectedTahunAjaran = value;
+                                              });
+                                            },
+                                          ),
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 )
@@ -367,7 +460,12 @@ class isiTenggat extends State<Riwayat> {
                                     ),
                                   );
                                 } else if (state is transaksiSuccess) {
-                                  return FutureBuilder<List<transaksi>>(future: localDB.panggilini.getLatestDateTransactionsFilteredByStatus("1"), builder: (context, snapshot) {
+                                  return FutureBuilder<List<transaksi>>(
+                                      future: localDB.panggilini.getFilteredTransactions(
+                                        status: "1",
+                                        semester: selectedSemester,
+                                        tahunAjaran: selectedTahunAjaran,
+                                      ), builder: (context, snapshot) {
                                     if (snapshot.connectionState == ConnectionState.waiting) {
                                       return CircularProgressIndicator();
                                     } if (snapshot.hasError) {
@@ -387,7 +485,7 @@ class isiTenggat extends State<Riwayat> {
                                           //padding: const EdgeInsets.symmetric(horizontal: 20),
                                           itemBuilder:(context, index) {
                                             final transaksi = snapshot.data?[index];
-                                            return Pembayarancard(transaction: transaksi!, isHome: false);
+                                            return Pembayarancard(transaction: transaksi!, isHome: false, onRefresh: refreshData);
                                           }
                                       );
                                     }
@@ -403,6 +501,189 @@ class isiTenggat extends State<Riwayat> {
                                   ),
                                 );
                               }
+                          ),
+                        ),
+                        SizedBox(height: 5),
+                        Container(
+                          width: MediaQuery.of(context).size.width * 0.8,
+                          height: MediaQuery.of(context).size.height * 0.08,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: thiscolor.AppColor.backgroundcolor,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+
+                                },
+                                child: Container(
+                                  width: MediaQuery.of(context).size.width * 0.5,
+                                  //height: MediaQuery.of(context).size.height * 0.11,
+                                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: thiscolor.AppColor.ijoButton,
+                                    boxShadow:[BoxShadow(
+                                      color: Colors.black12,
+                                      blurRadius: 10,
+                                      offset: Offset(0, 12),
+                                    )],
+                                  ),
+                                  child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                            "Total Pembayaran",
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w400,
+                                              color: thiscolor.AppColor.backgroundcolor,
+                                            )
+                                        ),
+                                        BlocBuilder<transaksiCubit, transaksiState>(
+                                            builder: (context, state) {
+                                              if (state is transaksiLoading) {
+                                                return CircularProgressIndicator();
+                                              } else if (state is transaksiFailure) {
+                                                return Text(
+                                                  "error state",
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w400,
+                                                    color: thiscolor.AppColor.backgroundcolor,
+                                                  ),
+                                                );
+                                              } else if (state is transaksiSuccess) {
+                                                return FutureBuilder<List<transaksi>>(future: localDB.panggilini.getFilteredTransactions(
+                                                  status: "1",
+                                                  semester: selectedSemester,
+                                                  tahunAjaran: selectedTahunAjaran,
+                                                ), builder: (context, snapshot) {
+                                                  if (snapshot.connectionState == ConnectionState.waiting) {
+                                                    return CircularProgressIndicator();
+                                                  } if (snapshot.hasError) {
+                                                    return Text(
+                                                      snapshot.error.toString(),
+                                                      style: GoogleFonts.poppins(
+                                                        fontSize: 14,
+                                                        fontWeight: FontWeight.w400,
+                                                        color: thiscolor.AppColor.backgroundcolor,
+                                                      ),
+                                                    );
+                                                  } else {
+                                                    List<transaksi> data = snapshot.data!;
+                                                    double totalLunas = 0.0;
+                                                    for (var totalLunasLoop in snapshot.data!) {
+                                                      totalLunas += (double.parse(totalLunasLoop.spp) - double.parse(totalLunasLoop.potongan));
+                                                    }
+                                                    return futuremoney(amount: CurrencyFormat.convertToIdr(totalLunas, 2).toString());
+                                                  }
+                                                }
+                                                );
+                                              }
+                                              return Text(
+                                                "error future builder",
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: thiscolor.AppColor.backgroundcolor,
+                                                ),
+                                              );
+                                            }
+                                        ),
+                                      ]
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                width: MediaQuery.of(context).size.width * 0.28,
+                                //height: MediaQuery.of(context).size.height * 0.18,
+                                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: thiscolor.AppColor.ijoButton,
+                                  boxShadow:[BoxShadow(
+                                    color: Colors.black12,
+                                    blurRadius: 10,
+                                    offset: Offset(0, 12),
+                                  )],
+                                ),
+                                child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                          "Jumlah",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w400,
+                                            color: thiscolor.AppColor.backgroundcolor,
+                                          )
+                                      ),
+                                      BlocBuilder<transaksiCubit, transaksiState>(
+                                          builder: (context, state) {
+                                            if (state is transaksiLoading) {
+                                              return CircularProgressIndicator();
+                                            } else if (state is transaksiFailure) {
+                                              return Text(
+                                                "error state",
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w400,
+                                                  color: thiscolor.AppColor.backgroundcolor,
+                                                ),
+                                              );
+                                            } else if (state is transaksiSuccess) {
+                                              return FutureBuilder<List<transaksi>>(future: localDB.panggilini.getFilteredTransactions(
+                                                status: "1",
+                                                semester: selectedSemester,
+                                                tahunAjaran: selectedTahunAjaran,
+                                              ), builder: (context, snapshot) {
+                                                if (snapshot.connectionState == ConnectionState.waiting) {
+                                                  return CircularProgressIndicator();
+                                                } if (snapshot.hasError) {
+                                                  return Text(
+                                                    snapshot.error.toString(),
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: 14,
+                                                      fontWeight: FontWeight.w400,
+                                                      color: thiscolor.AppColor.backgroundcolor,
+                                                    ),
+                                                  );
+                                                } else {
+                                                  final data = snapshot.data!;
+                                                  return Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text(
+                                                          data.length.toString(),
+                                                          style: GoogleFonts.poppins(
+                                                              color: thiscolor.AppColor.backgroundcolor,
+                                                              fontSize: 18,
+                                                              fontWeight: FontWeight.bold
+                                                          )
+                                                      ),
+                                                    ],
+                                                  );
+                                                }
+                                              }
+                                              );
+                                            }
+                                            return Text(
+                                              "error future builder",
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                                color: thiscolor.AppColor.backgroundcolor,
+                                              ),
+                                            );
+                                          }
+                                      ),
+                                    ]
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],

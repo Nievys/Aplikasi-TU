@@ -20,19 +20,19 @@ import '../widget/PembayaranCard.dart';
 import '../widget/PopupMenuWidget.dart';
 import 'ProfilePage.dart';
 
-class Tagihan extends StatefulWidget {
-  final PageController pageController;
-  const Tagihan({super.key, required this.pageController});
+class Konfirmasi extends StatefulWidget {
+  const Konfirmasi({super.key});
 
   @override
-  State<Tagihan> createState() => isiPembayaran();
+  State<Konfirmasi> createState() => isiKonfirmasi();
 }
 
-class isiPembayaran extends State<Tagihan> {
-  final StorageService ambiltoken = StorageService();
+class isiKonfirmasi extends State<Konfirmasi> {
+  int currentPage = 3;
 
+  @override
   void initState() {
-    //loadAllTransaction();
+    super.initState();
     refreshData();
   }
 
@@ -45,18 +45,6 @@ class isiPembayaran extends State<Tagihan> {
       context.read<transaksiCubit>().AllTransaction(data);
     }
   }
-
-  Future<void> loadAllTransaction() async {
-    final callthiscubit = context.read<transaksiCubit>();
-
-    var token = await ambiltoken.getToken();
-    var data = {
-      'token' : token
-    };
-    callthiscubit.AllTransaction(data);
-  }
-
-  int currentPage = 2;
 
   @override
   Widget build(BuildContext context) {
@@ -72,151 +60,64 @@ class isiPembayaran extends State<Tagihan> {
                     width: MediaQuery.of(context).size.width * 0.8,
                     height: MediaQuery.of(context).size.height * 0.08,
                     margin: EdgeInsets.only(
-                        left: MediaQuery.of(context).size.width * 0.08,
+                        left: MediaQuery.of(context).size.width * 0.05,
                         right: MediaQuery.of(context).size.width * 0.08,
                         top: MediaQuery.of(context).size.width * 0.03
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(25),
+                          ),
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: thiscolor.AppColor.ijoButton,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(25),
+                              ),
+                              padding: EdgeInsets.all(12),
+                              elevation: 0,
+                            ),
+                            child: Icon(
+                              Icons.arrow_back,
+                              color: thiscolor.AppColor.backgroundcolor,
+                            ),
+                          ),
+                        ),
                         Text(
-                          "Tagihan",
+                          "Konfirmasi",
                           style: GoogleFonts.poppins(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                               color: thiscolor.AppColor.ijoButton
                           ),
                         ),
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(25),
-                            color: thiscolor.AppColor.backgroundcolor,
-                          ),
-                          child: PopupMenuWidget(
-                            iconColor: thiscolor.AppColor.ijoButton,
-                            backgroundColor: thiscolor.AppColor.brokenwhite,
-                          ),
-                        ),
                       ],
                     ),
                   ),
                   Container(
-                      width: MediaQuery.of(context).size.width * 0.8,
-                      height: MediaQuery.of(context).size.height * 0.11,
-                      margin: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.05),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: thiscolor.AppColor.backgroundcolor,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              widget.pageController.jumpToPage(2);
-                            },
-                            child: Container(
-                              width: MediaQuery.of(context).size.width * 0.6,
-                              height: MediaQuery.of(context).size.height * 0.18,
-                              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 25),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                color: thiscolor.AppColor.ijoButton,
-                                boxShadow:[BoxShadow(
-                                  color: Colors.black12,
-                                  blurRadius: 10,
-                                  offset: Offset(0, 12),
-                                )],
-                              ),
-                              child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                        "Jumlah Keseluruhan Tagihan",
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w400,
-                                          color: thiscolor.AppColor.backgroundcolor,
-                                        )
-                                    ),
-                                    BlocBuilder<transaksiCubit, transaksiState>(
-                                        builder: (context, state) {
-                                          if (state is transaksiLoading) {
-                                            return CircularProgressIndicator();
-                                          } else if (state is transaksiFailure) {
-                                            return Text(
-                                              "error state",
-                                              style: GoogleFonts.poppins(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w400,
-                                                color: thiscolor.AppColor.backgroundcolor,
-                                              ),
-                                            );
-                                          } else if (state is transaksiSuccess) {
-                                            return FutureBuilder<List<transaksi>>(future: localDB.panggilini.getSpecificTransaction("0"), builder: (context, snapshot) {
-                                              if (snapshot.connectionState == ConnectionState.waiting) {
-                                                return CircularProgressIndicator();
-                                              } if (snapshot.hasError) {
-                                                return Text(
-                                                  snapshot.error.toString(),
-                                                  style: GoogleFonts.poppins(
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.w400,
-                                                    color: thiscolor.AppColor.backgroundcolor,
-                                                  ),
-                                                );
-                                              } else {
-                                                List<transaksi> data = snapshot.data!;
-                                                double totalTagihan = 0.0;
-                                                for (var totalTagihanLoop in snapshot.data!) {
-                                                  totalTagihan += (double.parse(totalTagihanLoop.spp) - double.parse(totalTagihanLoop.potongan));
-                                                }
-                                                return futuremoney(amount: CurrencyFormat.convertToIdr(totalTagihan, 2).toString());
-                                              }
-                                            }
-                                            );
-                                          }
-                                          return Text(
-                                            "error future builder",
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold,
-                                              color: thiscolor.AppColor.backgroundcolor,
-                                            ),
-                                          );
-                                        }
-                                    ),
-                                    // Expanded(
-                                    //   child: Row(
-                                    //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    //     children: [
-                                    //       Text(
-                                    //         "Lihat riwayat pembayaran",
-                                    //         style: GoogleFonts.poppins(
-                                    //             fontSize: 12,
-                                    //             fontWeight: FontWeight.w400,
-                                    //             color: thiscolor.AppColor.backgroundcolor
-                                    //         ),
-                                    //       ),
-                                    //       Text(
-                                    //         ">",
-                                    //         style: GoogleFonts.poppins(
-                                    //             fontSize: 12,
-                                    //             fontWeight: FontWeight.w400,
-                                    //             color: thiscolor.AppColor.backgroundcolor
-                                    //         ),
-                                    //       )
-                                    //     ],
-                                    //   ),
-                                    // ),
-                                  ]
-                              ),
-                            ),
-                          ),
-                          Container(
-                            width: MediaQuery.of(context).size.width * 0.28,
+                    width: MediaQuery.of(context).size.width * 0.8,
+                    height: MediaQuery.of(context).size.height * 0.11,
+                    margin: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.05),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: thiscolor.AppColor.backgroundcolor,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                          },
+                          child: Container(
+                            width: MediaQuery.of(context).size.width * 0.6,
                             height: MediaQuery.of(context).size.height * 0.18,
-                            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 25),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
                               color: thiscolor.AppColor.ijoButton,
@@ -230,7 +131,7 @@ class isiPembayaran extends State<Tagihan> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                      "Total",
+                                      "Pembayaran Tertunda",
                                       style: GoogleFonts.poppins(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w400,
@@ -251,7 +152,7 @@ class isiPembayaran extends State<Tagihan> {
                                             ),
                                           );
                                         } else if (state is transaksiSuccess) {
-                                          return FutureBuilder<int>(future: localDB.panggilini.countTotalTagihan("0"), builder: (context, snapshot) {
+                                          return FutureBuilder<List<transaksi>>(future: localDB.panggilini.getUnconfirmedTransactions(), builder: (context, snapshot) {
                                             if (snapshot.connectionState == ConnectionState.waiting) {
                                               return CircularProgressIndicator();
                                             } if (snapshot.hasError) {
@@ -264,28 +165,12 @@ class isiPembayaran extends State<Tagihan> {
                                                 ),
                                               );
                                             } else {
-                                              final data = snapshot.data!;
-                                              return Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    data.toString(),
-                                                    style: GoogleFonts.poppins(
-                                                      color: thiscolor.AppColor.backgroundcolor,
-                                                      fontSize: 18,
-                                                      fontWeight: FontWeight.bold
-                                                    )
-                                                  ),
-                                                  Text(
-                                                    "Tagihan",
-                                                    style: GoogleFonts.poppins(
-                                                      color: thiscolor.AppColor.backgroundcolor,
-                                                      fontWeight: FontWeight.normal,
-                                                      fontSize: 14
-                                                    ),
-                                                  )
-                                                ],
-                                              );
+                                              List<transaksi> data = snapshot.data!;
+                                              double totalTertunda = 0.0;
+                                              for (var totalTertundaLoop in snapshot.data!) {
+                                                totalTertunda += (double.parse(totalTertundaLoop.spp) - double.parse(totalTertundaLoop.potongan));
+                                              }
+                                              return futuremoney(amount: CurrencyFormat.convertToIdr(totalTertunda, 2).toString());
                                             }
                                           }
                                           );
@@ -300,19 +185,133 @@ class isiPembayaran extends State<Tagihan> {
                                         );
                                       }
                                   ),
+                                  // Expanded(
+                                  //   child: Row(
+                                  //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  //     children: [
+                                  //       Text(
+                                  //         "Lihat Konfirmasi pembayaran",
+                                  //         style: GoogleFonts.poppins(
+                                  //             fontSize: 12,
+                                  //             fontWeight: FontWeight.w400,
+                                  //             color: thiscolor.AppColor.backgroundcolor
+                                  //         ),
+                                  //       ),
+                                  //       Text(
+                                  //         ">",
+                                  //         style: GoogleFonts.poppins(
+                                  //             fontSize: 12,
+                                  //             fontWeight: FontWeight.w400,
+                                  //             color: thiscolor.AppColor.backgroundcolor
+                                  //         ),
+                                  //       )
+                                  //     ],
+                                  //   ),
+                                  // ),
                                 ]
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                        Container(
+                          width: MediaQuery.of(context).size.width * 0.28,
+                          height: MediaQuery.of(context).size.height * 0.18,
+                          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: thiscolor.AppColor.ijoButton,
+                            boxShadow:[BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 10,
+                              offset: Offset(0, 12),
+                            )],
+                          ),
+                          child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                    "Total",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w400,
+                                      color: thiscolor.AppColor.backgroundcolor,
+                                    )
+                                ),
+                                BlocBuilder<transaksiCubit, transaksiState>(
+                                    builder: (context, state) {
+                                      if (state is transaksiLoading) {
+                                        return CircularProgressIndicator();
+                                      } else if (state is transaksiFailure) {
+                                        return Text(
+                                          "error state",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w400,
+                                            color: thiscolor.AppColor.backgroundcolor,
+                                          ),
+                                        );
+                                      } else if (state is transaksiSuccess) {
+                                        return FutureBuilder<List<transaksi>>(future: localDB.panggilini.getUnconfirmedTransactions(), builder: (context, snapshot) {
+                                          if (snapshot.connectionState == ConnectionState.waiting) {
+                                            return CircularProgressIndicator();
+                                          } if (snapshot.hasError) {
+                                            return Text(
+                                              snapshot.error.toString(),
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w400,
+                                                color: thiscolor.AppColor.backgroundcolor,
+                                              ),
+                                            );
+                                          } else {
+                                            final data = snapshot.data!;
+                                            return Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                    data.length.toString(),
+                                                    style: GoogleFonts.poppins(
+                                                        color: thiscolor.AppColor.backgroundcolor,
+                                                        fontSize: 18,
+                                                        fontWeight: FontWeight.bold
+                                                    )
+                                                ),
+                                                Text(
+                                                  "Tertunda",
+                                                  style: GoogleFonts.poppins(
+                                                      color: thiscolor.AppColor.backgroundcolor,
+                                                      fontWeight: FontWeight.normal,
+                                                      fontSize: 14
+                                                  ),
+                                                )
+                                              ],
+                                            );
+                                          }
+                                        }
+                                        );
+                                      }
+                                      return Text(
+                                        "error future builder",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: thiscolor.AppColor.backgroundcolor,
+                                        ),
+                                      );
+                                    }
+                                ),
+                              ]
+                          ),
+                        ),
+                      ],
                     ),
+                  ),
                   Container(
                     width: MediaQuery.of(context).size.width * 0.8,
                     //height: MediaQuery.of(context).size.height * 0.59,
                     margin: EdgeInsets.only(
                         left: MediaQuery.of(context).size.width * 0.05,
                         right: MediaQuery.of(context).size.width * 0.05,
-                      top: MediaQuery.of(context).size.height * 0.01
+                        top: MediaQuery.of(context).size.height * 0.01
                     ),
                     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                     decoration: BoxDecoration(
@@ -337,7 +336,7 @@ class isiPembayaran extends State<Tagihan> {
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
-                                        "Seluruh Tagihan",
+                                        "Seluruh Pembayaran Tertunda",
                                         style: GoogleFonts.poppins(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w400,
@@ -392,7 +391,7 @@ class isiPembayaran extends State<Tagihan> {
                                     ),
                                   );
                                 } else if (state is transaksiSuccess) {
-                                  return FutureBuilder<List<transaksi>>(future: localDB.panggilini.getLatestDateTransactionsFilteredByStatus("0"), builder: (context, snapshot) {
+                                  return FutureBuilder<List<transaksi>>(future: localDB.panggilini.getUnconfirmedTransactions(), builder: (context, snapshot) {
                                     if (snapshot.connectionState == ConnectionState.waiting) {
                                       return CircularProgressIndicator();
                                     } if (snapshot.hasError) {
@@ -412,7 +411,7 @@ class isiPembayaran extends State<Tagihan> {
                                           //padding: const EdgeInsets.symmetric(horizontal: 20),
                                           itemBuilder:(context, index) {
                                             final transaksi = snapshot.data?[index];
-                                            return Pembayarancard(transaction: transaksi!, isHome: false, onRefresh: refreshData);
+                                            return Pembayarancard(transaction: transaksi!, isHome: true, onRefresh: refreshData);
                                           }
                                       );
                                     }
