@@ -104,7 +104,15 @@ class _HomePageState extends State<HomePage> {
                           children: [
                             FutureBuilder(future: userWhoLogged, builder: (context, snapshot) {
                               if (snapshot.connectionState == ConnectionState.waiting) {
-                                return CircularProgressIndicator();
+                                return Container(
+                                    width: 40,
+                                    height: 40,
+                                    padding: EdgeInsets.all(8),
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(thiscolor.AppColor.ijoButton),
+                                    )
+                                );
                               } else if (snapshot.hasError) {
                                 return Text(
                                   snapshot.error.toString(),
@@ -180,7 +188,15 @@ class _HomePageState extends State<HomePage> {
                                       BlocBuilder<transaksiCubit, transaksiState>(
                                           builder: (context, state) {
                                             if (state is transaksiLoading) {
-                                              return CircularProgressIndicator();
+                                              return Container(
+                                                  width: 40,
+                                                  height: 40,
+                                                  padding: EdgeInsets.all(8),
+                                                  child: CircularProgressIndicator(
+                                                    strokeWidth: 2,
+                                                    valueColor: AlwaysStoppedAnimation<Color>(thiscolor.AppColor.backgroundcolor),
+                                                  )
+                                              );
                                             } else if (state is transaksiFailure) {
                                               return Text(
                                                 "error state",
@@ -193,7 +209,15 @@ class _HomePageState extends State<HomePage> {
                                             } else if (state is transaksiSuccess) {
                                               return FutureBuilder<List<transaksi>>(future: localDB.panggilini.getSixMonthTransaction("1"), builder: (context, snapshot) {
                                                 if (snapshot.connectionState == ConnectionState.waiting) {
-                                                  return CircularProgressIndicator();
+                                                  return Container(
+                                                      width: 40,
+                                                      height: 40,
+                                                      padding: EdgeInsets.all(8),
+                                                      child: CircularProgressIndicator(
+                                                        strokeWidth: 2,
+                                                        valueColor: AlwaysStoppedAnimation<Color>(thiscolor.AppColor.backgroundcolor),
+                                                      )
+                                                  );
                                                 } if (snapshot.hasError) {
                                                   return Text(
                                                     snapshot.error.toString(),
@@ -290,7 +314,15 @@ class _HomePageState extends State<HomePage> {
                                             BlocBuilder<transaksiCubit, transaksiState>(
                                                 builder: (context, state) {
                                                   if (state is transaksiLoading) {
-                                                    return CircularProgressIndicator();
+                                                    return Container(
+                                                        width: 40,
+                                                        height: 40,
+                                                        padding: EdgeInsets.all(8),
+                                                        child: CircularProgressIndicator(
+                                                          strokeWidth: 2,
+                                                          valueColor: AlwaysStoppedAnimation<Color>(thiscolor.AppColor.backgroundcolor),
+                                                        )
+                                                    );
                                                   } else if (state is transaksiFailure) {
                                                     return Text(
                                                       "error state",
@@ -303,7 +335,15 @@ class _HomePageState extends State<HomePage> {
                                                   } else if (state is transaksiSuccess) {
                                                     return FutureBuilder<List<transaksi>>(future: localDB.panggilini.getLatestDateTransactionsFilteredByStatus("0"), builder: (context, snapshot) {
                                                       if (snapshot.connectionState == ConnectionState.waiting) {
-                                                        return CircularProgressIndicator();
+                                                        return Container(
+                                                            width: 40,
+                                                            height: 40,
+                                                            padding: EdgeInsets.all(8),
+                                                            child: CircularProgressIndicator(
+                                                              strokeWidth: 2,
+                                                              valueColor: AlwaysStoppedAnimation<Color>(thiscolor.AppColor.backgroundcolor),
+                                                            )
+                                                        );
                                                       }else if (snapshot.hasError) {
                                                         return Text(
                                                           snapshot.error.toString(),
@@ -385,7 +425,15 @@ class _HomePageState extends State<HomePage> {
                                           BlocBuilder<transaksiCubit, transaksiState>(
                                               builder: (context, state) {
                                                 if (state is transaksiLoading) {
-                                                  return CircularProgressIndicator();
+                                                  return Container(
+                                                      width: 40,
+                                                      height: 40,
+                                                      padding: EdgeInsets.all(8),
+                                                      child: CircularProgressIndicator(
+                                                        strokeWidth: 2,
+                                                        valueColor: AlwaysStoppedAnimation<Color>(thiscolor.AppColor.backgroundcolor),
+                                                      )
+                                                  );
                                                 } else if (state is transaksiFailure) {
                                                   return Text(
                                                     "error state",
@@ -398,7 +446,15 @@ class _HomePageState extends State<HomePage> {
                                                 } else if (state is transaksiSuccess) {
                                                   return FutureBuilder<dynamic>(future: localDB.panggilini.getLatestSemesterAndYear(), builder: (context, snapshot) {
                                                     if (snapshot.connectionState == ConnectionState.waiting) {
-                                                      return CircularProgressIndicator();
+                                                      return Container(
+                                                          width: 40,
+                                                          height: 40,
+                                                          padding: EdgeInsets.all(8),
+                                                          child: CircularProgressIndicator(
+                                                            strokeWidth: 2,
+                                                            valueColor: AlwaysStoppedAnimation<Color>(thiscolor.AppColor.backgroundcolor),
+                                                          )
+                                                      );
                                                     }else if (snapshot.hasError) {
                                                       return Text(
                                                         snapshot.error.toString(),
@@ -539,7 +595,15 @@ class _HomePageState extends State<HomePage> {
                               child: BlocBuilder<transaksiCubit, transaksiState>(
                                   builder: (context, state) {
                                     if (state is transaksiLoading) {
-                                      return CircularProgressIndicator();
+                                      return Container(
+                                          width: 40,
+                                          height: 40,
+                                          padding: EdgeInsets.all(8),
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            valueColor: AlwaysStoppedAnimation<Color>(thiscolor.AppColor.ijoButton),
+                                          )
+                                      );
                                     } else if (state is transaksiFailure) {
                                       return Text(
                                         "error state",
@@ -552,7 +616,15 @@ class _HomePageState extends State<HomePage> {
                                     } else if (state is transaksiSuccess) {
                                       return FutureBuilder<List<transaksi>>(future: localDB.panggilini.getSixMonthTransactionWithoutFilter(), builder: (context, snapshot) {
                                         if (snapshot.connectionState == ConnectionState.waiting) {
-                                          return CircularProgressIndicator();
+                                          return Container(
+                                              width: 40,
+                                              height: 40,
+                                              padding: EdgeInsets.all(8),
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                valueColor: AlwaysStoppedAnimation<Color>(thiscolor.AppColor.ijoButton),
+                                              )
+                                          );
                                         } if (snapshot.hasError) {
                                           return Text(
                                             snapshot.error.toString(),

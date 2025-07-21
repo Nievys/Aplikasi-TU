@@ -17,16 +17,19 @@ class localDB {
 
   Future<Database> _initDatabase() async {
     final String path = join(await getDatabasesPath(), 'transaksi.db');
-    return await openDatabase(path, version: 3, onCreate: onCreate, onUpgrade: onUpgrade);
+    return await openDatabase(path, version: 6, onCreate: onCreate, onUpgrade: onUpgrade);
   }
 
   Future<void> onCreate(Database db, int version) async {
     await db.execute('''
-    CREATE TABLE transaksi (
+      CREATE TABLE transaksi (
       id_transaksi INTEGER PRIMARY KEY,
       id_spp INTEGER,
+      nama_kelas TEXT,
+      bukti_pembayaran TEXT,
       spp TEXT,
       potongan TEXT,
+      bukti_potongan TEXT,
       bulan INTEGER,
       semester INTEGER,
       tahun_ajaran TEXT,
@@ -38,24 +41,30 @@ class localDB {
       created_at TEXT,
       updated_at TEXT,
       deleted_at TEXT,
-      created_by TEXT,
-      updated_by TEXT,
-      deleted_by TEXT,
+      created_by INTEGER,
+      updated_by INTEGER,
+      deleted_by INTEGER,
       nama_lengkap TEXT,
-      id_account INTEGER
+      id_account INTEGER,
+      status_verifikasi INTEGER,
+      id_verifikasi INTEGER,
+      nisn TEXT,
+      id_NIS TEXT
     );
     ''');
   }
 
   Future<void> onUpgrade(Database db, int oldVersion, int newVersion) async {
-    if (oldVersion < 3) {
+    if (oldVersion < 6) {
       await db.execute('''
       CREATE TABLE transaksi_new (
         id_transaksi INTEGER PRIMARY KEY,
         id_spp INTEGER,
         nama_kelas TEXT,
+        bukti_pembayaran TEXT,
         spp TEXT,
         potongan TEXT,
+        bukti_potongan TEXT,
         bulan INTEGER,
         semester INTEGER,
         tahun_ajaran TEXT,
@@ -95,7 +104,11 @@ class localDB {
 
   Future<int> insertTransaction(transaksi transaksi) async {
     Database db = await database;
-    return await db.insert('transaksi', transaksi.toJson());
+    return await db.insert(
+      'transaksi',
+      transaksi.toJson(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
   Future<int> deleteAllTransaction() async {

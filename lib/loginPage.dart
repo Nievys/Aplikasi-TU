@@ -160,6 +160,8 @@ class _loginPage extends State<loginPage> {
       'device_name' : device_name
     };
 
+    print(data);
+
     authCubit.login(data);
   }
 }

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:aplikasikkp/ScreenView.dart';
 import 'package:aplikasikkp/loginPage.dart';
+import 'package:aplikasikkp/pages/splashPage.dart';
 import 'package:aplikasikkp/providers/bloc/bottom_nav_cubit.dart';
 import 'package:aplikasikkp/providers/bloc/transaksiCubit.dart';
 import 'package:flutter/material.dart';
@@ -54,7 +55,7 @@ class AuthHandler extends StatelessWidget {
     return BlocBuilder<AuthCubit, AuthState>(
       builder: (context, state) {
         if (state is AuthInitial) {
-          return CircularProgressIndicator();
+          return SplashPage();
         } else if (state is AuthAuthenticated) {
           return const Screenview();
         } else if (state is AuthUnauthenticated) {

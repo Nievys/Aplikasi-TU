@@ -5,8 +5,10 @@ class transaksi {
   final int idTransaksi;
   final int idSpp;
   final String nama_kelas;
+  final String? bukti_pembayaran;
   final String spp;
   final String potongan;
+  final String? bukti_potongan;
   final int bulan;
   final int semester;
   final String tahunAjaran;
@@ -32,8 +34,10 @@ class transaksi {
     required this.idTransaksi,
     required this.idSpp,
     required this.nama_kelas,
+    this.bukti_pembayaran,
     required this.spp,
     required this.potongan,
+    this.bukti_potongan,
     required this.bulan,
     required this.semester,
     required this.tahunAjaran,
@@ -63,8 +67,10 @@ class transaksi {
       idTransaksi: this.idTransaksi,
       idSpp: this.idSpp,
       nama_kelas: this.nama_kelas,
+      bukti_pembayaran: this.bukti_pembayaran,
       spp: this.spp,
       potongan: this.potongan,
+      bukti_potongan: this.bukti_potongan,
       bulan: this.bulan,
       semester: this.semester,
       tahunAjaran: this.tahunAjaran,
@@ -93,8 +99,10 @@ class transaksi {
       idTransaksi: json['id_transaksi'],
       idSpp: json['id_spp'],
       nama_kelas: json['nama_kelas'] ?? '',
+      bukti_pembayaran: json['bukti_pembayaran'],
       spp: json['spp'],
       potongan: json['potongan'],
+      bukti_potongan: json['bukti_potongan'],
       bulan: json['bulan'],
       semester: json['semester'],
       tahunAjaran: json['tahun_ajaran'],
@@ -122,8 +130,10 @@ class transaksi {
     'id_transaksi': idTransaksi,
     'id_spp': idSpp,
     'nama_kelas': nama_kelas,
+    'bukti_pembayaran': bukti_pembayaran,
     'spp': spp,
     'potongan': potongan,
+    'bukti_potongan': bukti_potongan,
     'bulan': bulan,
     'semester': semester,
     'tahun_ajaran': tahunAjaran,

@@ -1,12 +1,15 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:aplikasikkp/Utils/transaksiServices.dart';
 import 'package:aplikasikkp/model/transaksi.dart';
+import 'package:aplikasikkp/widget/pdfViewer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -32,6 +35,7 @@ class Bottomsheetpembayaran extends StatefulWidget {
 class IsiBottomSheetPembayaran extends State<Bottomsheetpembayaran> {
   final DraggableScrollableController controllerSheet = DraggableScrollableController();
   bool deskripsiAktif = false;
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -312,6 +316,152 @@ class IsiBottomSheetPembayaran extends State<Bottomsheetpembayaran> {
                                 ),
                               ),
                             ),
+
+                            // Button saat sudah lunas untuk cetak kwitansi
+                            if (isConfirmed && isLunas)
+                              SizedBox(width: 10),
+                            if (isConfirmed && isLunas)
+                              isLoading
+                                ? Container(
+                                width: 40,
+                                height: 40,
+                                padding: EdgeInsets.all(8),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(thiscolor.AppColor.ijoButton),
+                                ),
+                              )
+                                : ElevatedButton(
+                                  onPressed: () async {
+                                    setState(() {
+                                      isLoading = true;
+                                    });
+                                    final storageService = StorageService();
+                                    final String? token = await storageService.getToken();
+                                    if (token != null) {
+                                      final pdfFile = await apiTransaksi.downloadAndSavePDF(token, widget.transaction.idTransaksi.toString());
+
+                                      if (pdfFile != null && context.mounted) {
+                                        setState(() {
+                                          isLoading = false;
+                                        });
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) => PDFPreviewPage(filePath: pdfFile.path),
+                                          ),
+                                        );
+                                      } else {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(content: Text("Gagal download PDF")),
+                                        );
+                                        log("Gagal download PDF");
+                                      }
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: thiscolor.AppColor.ijoButton,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
+                                  ),
+                                  child: Text(
+                                      "Lihat Kwitansi",
+                                      style: GoogleFonts.poppins(
+                                        color: thiscolor.AppColor.background,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.normal,
+                                      )),
+                                ),
+
+                            // Button untuk mengganti bukti pembayaran dengan kondisi belum lunas dan belum terkonfirmasi
+                            if (!isConfirmed && !isLunas)
+                              SizedBox(width: 10),
+                            if (!isConfirmed && !isLunas)
+                              ElevatedButton(
+                                onPressed: () async {
+                                  if (widget.transaction.bukti_pembayaran != null) {
+                                    showDialog(context: context, builder: (context) {
+                                      return AlertDialog(
+                                        title: Text(
+                                          "Bukti Pembayaran sudah ada!",
+                                          style: GoogleFonts.poppins(
+                                            color: thiscolor.AppColor.ijoButton,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        content: Text(
+                                          "Apakah anda ingin mengganti bukti pembayaran?",
+                                          style: GoogleFonts.poppins(
+                                            color: thiscolor.AppColor.ijoButton,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.normal,
+                                          ),
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                              return;
+                                            },
+                                            child: Text(
+                                              "batal",
+                                              style: GoogleFonts.poppins(
+                                                color: thiscolor.AppColor.ijoButton,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
+                                              )
+                                            )
+                                          ),
+                                          TextButton(
+                                              onPressed: () async {
+                                                bool success = await uploadImage();
+                                                if (success) {
+                                                  ScaffoldMessenger.of(context).showSnackBar(
+                                                    SnackBar(content: Text("Berhasil mengubah bukti pembayaran")),
+                                                  );
+                                                }
+                                                Navigator.pop(context);
+                                              },
+                                              child: Text(
+                                                  "ganti",
+                                                  style: GoogleFonts.poppins(
+                                                    color: thiscolor.AppColor.ijoButton,
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w500,
+                                                  )
+                                              )
+                                          )
+                                        ],
+                                      );
+                                    });
+                                  } else {
+                                    bool success = await uploadImage();
+                                    if (success) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text("Berhasil kirim bukti pembayaran")),
+                                      );
+                                      Navigator.pop(context, true);
+                                    }
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: thiscolor.AppColor.ijoButton,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                ),
+                                child: Text(
+                                    "Upload bukti transfer",
+                                    style: GoogleFonts.poppins(
+                                      color: thiscolor.AppColor.background,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.normal,
+                                    )),
+                              ),
+
+                            // Button untuk mengkonfirmasi pembayaran jika sudah lunas
                             if (!isConfirmed && isLunas)
                               SizedBox(width: 10),
                             if (!isConfirmed && isLunas)
@@ -418,6 +568,34 @@ class IsiBottomSheetPembayaran extends State<Bottomsheetpembayaran> {
             ]
         )
     );
+  }
+
+  Future<bool> uploadImage() async {
+    final token = await StorageService().getToken();
+    if (token != null) {
+      final picker = ImagePicker();
+      final pickedImage = await picker.pickImage(source: ImageSource.gallery);
+      if (pickedImage == null) {
+        return false;
+      }
+      var response = await transaksiServices().uploadBuktiPembayaran(
+        token: token,
+        idTransaksi: widget.transaction.idTransaksi.toString(),
+        buktiPembayaran: File(pickedImage.path),
+      );
+      if (response.toString().toLowerCase() != "success") {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Gagal upload bukti pembayaran")),
+        );
+      }
+      Navigator.pop(context, true);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Token tidak ditemukan")),
+      );
+      return false;
+    }
+    return true;
   }
 
   Widget statuslunas(String statusLunas) {
