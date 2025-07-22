@@ -83,7 +83,7 @@ flutter pub get
 cd rust_encryption/
 cargo build --release
 ```
-Lalu hasil compile (.so, .dll, atau .dylib) digunakan oleh Flutter melalui FFI.
+  Lalu hasil compile (.so, .dll, atau .dylib) digunakan oleh Flutter melalui FFI.
 
 4. **Jalankan aplikasi**
 
@@ -91,5 +91,5 @@ Lalu hasil compile (.so, .dll, atau .dylib) digunakan oleh Flutter melalui FFI.
 flutter run
 ```
 
-🧠 Kredit dan Referensi
+## 🧠 Kredit dan Referensi
 Aplikasi ini dikembangkan sebagai bagian dari Kuliah Kerja Praktek oleh mahasiswa informatika dengan tujuan edukatif dan kontribusi publik.
