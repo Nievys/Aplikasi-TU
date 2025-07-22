@@ -442,7 +442,6 @@ class IsiBottomSheetPembayaran extends State<Bottomsheetpembayaran> {
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(content: Text("Berhasil kirim bukti pembayaran")),
                                       );
-                                      Navigator.pop(context, true);
                                     }
                                   }
                                 },

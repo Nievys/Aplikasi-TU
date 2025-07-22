@@ -28,7 +28,6 @@ class transaksiCubit extends Cubit<transaksiState> {
       var aesKey = localStorage.getString('decryption_key');
       List<int> keyBytes = base64.decode(aesKey!);
       String decodedKey = utf8.decode(keyBytes);
-      print(decodedKey);
       transaksiResponse apiResponse = await callthisapi.getAllTransaction(token);
       if (apiResponse != null && apiResponse.dataTransaksi is List) {
         List<transaksi> processedTransactions = [];

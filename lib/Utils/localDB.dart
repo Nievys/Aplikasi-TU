@@ -383,8 +383,6 @@ class localDB {
       orderBy: "created_at DESC",
     );
 
-    print("Unconfirmed transactions count: ${maps.length}");
-
     return maps.map((map) => transaksi.fromJson(map)).toList();
   }
 
@@ -399,12 +397,10 @@ class localDB {
     );
 
     if (maps.isEmpty) {
-      print("No semester/tahun_ajaran data found.");
       return null;
     }
 
     final latest = maps.first;
-    print("Latest semester data: $latest");
 
     return {
       'semester': latest['semester'],
