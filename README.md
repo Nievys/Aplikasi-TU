@@ -61,3 +61,35 @@ Aplikasi-TU/
 - Android Studio / VS Code
 - Rust toolchain (untuk compile modul enkripsi)
 - Android device atau emulator
+
+### Langkah-langkah:
+
+1. **Clone repository ini**
+
+```bash
+git clone https://github.com/Nievys/Aplikasi-TU.git
+cd Aplikasi-TU
+```
+
+2. **Install dependencies flutter**
+
+```bash
+flutter pub get
+```
+
+3. **Build Rust FFI (opsional jika belum dibuild)**
+
+```bash
+cd rust_encryption/
+cargo build --release
+```
+Lalu hasil compile (.so, .dll, atau .dylib) digunakan oleh Flutter melalui FFI.
+
+4. **Jalankan aplikasi**
+
+```bash
+flutter run
+```
+
+🧠 Kredit dan Referensi
+Aplikasi ini dikembangkan sebagai bagian dari Kuliah Kerja Praktek oleh mahasiswa informatika dengan tujuan edukatif dan kontribusi publik.
