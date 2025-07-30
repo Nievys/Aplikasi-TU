@@ -1,6 +1,9 @@
 // widget/PopupMenuWidget.dart
+import 'package:aplikasikkp/auth/authBloc/auth_cubit.dart';
+import 'package:aplikasikkp/auth/authServices.dart';
 import 'package:aplikasikkp/pages/Konfirmasi.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -26,7 +29,7 @@ class PopupMenuWidget extends StatelessWidget {
             Get.to(() => const Konfirmasi());
             break;
           case 1:
-            //Get.offAll(() => const LoginPage()); // Logout ke halaman login
+            context.read<AuthCubit>().logout();
             break;
         }
       },

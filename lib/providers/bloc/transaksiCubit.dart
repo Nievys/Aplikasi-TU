@@ -40,6 +40,7 @@ class transaksiCubit extends Cubit<transaksiState> {
             List<String> hasildekrip = AesDecryptionUtil.decrypt(decodedKey, ciphertextFormatted);
             if (hasildekrip.isNotEmpty) {
               String decryptedStatus = hasildekrip.first;
+              log("Decrypted statusLunas: $decryptedStatus");
               currentTransaction = transaksi(
                 idTransaksi: currentTransaction.idTransaksi,
                 idSpp: currentTransaction.idSpp,

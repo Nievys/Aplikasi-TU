@@ -53,7 +53,11 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   Future<void> logout() async {
-    await storageService.deleteToken();
+    StorageService auth = StorageService();
+    authServices buatlogout = authServices();
+    final token = await auth.getToken();
+    await buatlogout.logout({"token": token});
+    auth.deleteToken();
     emit(AuthUnauthenticated());
   }
 }

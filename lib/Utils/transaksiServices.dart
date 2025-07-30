@@ -27,8 +27,8 @@ class TransactionStorageService {
 }
 
 class transaksiServices {
-  static final String baseUrl = 'http://192.168.0.101:12000/api';
-  //static final String baseUrl = 'http://10.74.80.224:12000/api';
+  //static final String baseUrl = 'http://192.168.0.103:12000/api';
+  static final String baseUrl = 'http://10.146.75.220:12000/api';
   var token;
 
   Future<transaksiResponse> getAllTransaction(data) async {
@@ -87,6 +87,7 @@ class transaksiServices {
     var streamedResponse = await request.send();
     var response = await http.Response.fromStream(streamedResponse);
 
+    log("status code upload bukti pembayaran ${response.statusCode.toString()}");
     if (response.statusCode == 200) {
       return "Success";
     } else {

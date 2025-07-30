@@ -599,7 +599,9 @@ class IsiBottomSheetPembayaran extends State<Bottomsheetpembayaran> {
 
   Widget statuslunas(String statusLunas) {
     final parts = statusLunas.split("|");
+    log("id transaksi: ${widget.transaction.idTransaksi}");
     log("status lunas: $statusLunas");
+    log("status confirmed: ${widget.transaction.status_verifikasi}");
 
     final isLunas = parts.isNotEmpty && parts.first.trim() == "1";
 

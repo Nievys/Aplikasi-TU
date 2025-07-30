@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pdfx/pdfx.dart';
+import 'package:printing/printing.dart';
+import 'package:pdf/pdf.dart' as pdfcetak;
 
 import '../Utils/ColorNest.dart' as thiscolor;
 
@@ -63,11 +65,32 @@ class _PDFPreviewPageState extends State<PDFPreviewPage> {
           ),
         ),
         backgroundColor: thiscolor.AppColor.ijoButton,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.print, color: thiscolor.AppColor.backgroundcolor),
+            onPressed: _printPDF,
+          ),
+        ],
       ),
       body: pdfController == null
           ? Center(child: CircularProgressIndicator())
           : PdfViewPinch(controller: pdfController!),
       backgroundColor: thiscolor.AppColor.backgroundcolor,
     );
+  }
+
+  void _printPDF() async {
+    try {
+      final file = File(widget.filePath);
+      final bytes = await file.readAsBytes();
+      await Printing.layoutPdf(
+        onLayout: (pdfcetak.PdfPageFormat format) async => bytes,
+      );
+    } catch (e) {
+      log('Gagal mencetak PDF: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal mencetak file PDF')),
+      );
+    }
   }
 }
